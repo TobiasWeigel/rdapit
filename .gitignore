@@ -1,5 +1,6 @@
 /bin
 /.classpath
+/.settings
 /.project
-
+/jar/
 /build/
