@@ -12,11 +12,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  *
  * @author thomz
  */
+@RunWith(JUnit4.class)
 public class TRHandleTest {
     
     public TRHandleTest() {
