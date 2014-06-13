@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -33,7 +34,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import rdapit.PID;
 import rdapit.PIDRecord;
 import rdapit.Property;
+import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.PropertyDefinition;
+import rdapit.typeregistry.TypeRegistry;
 
 public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
@@ -78,8 +81,16 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public Property<?> queryProperty(PID pid, String propertyName) {
-		throw new UnsupportedOperationException("not implemented yet");
+	public Property<?> queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
+		// Retrieve property definition given the name
+		List<PropertyDefinition> propertyDefinitions = typeRegistry.queryPropertyDefinitionByName(propertyName);
+		if (propertyDefinitions.size() > 1) {
+			throw new IllegalArgumentException("The given property name '"+propertyName+"' is not unique in the type registry");
+		} else if (propertyDefinitions.isEmpty()) {
+			throw new IllegalArgumentException("The given property name '"+propertyName+"' cannot be found in the type registry");
+		}
+		// Forward to other method
+		return queryProperty(pid, propertyDefinitions.get(0));
 	}
 
 	public PIDRecord queryPIDRecord(PID pid) throws JsonParseException, JsonMappingException, IOException {
@@ -130,11 +141,15 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	public static void main(String[] args) throws Exception {
+		TypeRegistry typeRegistry = new TypeRegistry("http://typeregistry.org/registrar");
+		
 		PropertyDefinition propertyDef = new PropertyDefinition(new PID("11043.4/TYPE_TITLE"), "Title", new PID("String"));
 		HandleSystemRESTAdapter hsra = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11053.4/admin", "password");
 		boolean b = hsra.isIdentifierRegistered(new PID("11043.4/weigel_TEST1"));
 		System.out.println(b);
 		Property<?> pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST1"), propertyDef);
+		System.out.println(pidr.getKey()+": "+pidr.getValueType()+": "+pidr.getValue());
+		pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST2"), "Title", typeRegistry);
 		System.out.println(pidr.getKey()+": "+pidr.getValueType()+": "+pidr.getValue());
 	}
 
