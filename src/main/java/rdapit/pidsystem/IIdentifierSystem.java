@@ -1,7 +1,10 @@
 package rdapit.pidsystem;
 
+import java.io.IOException;
+
 import rdapit.PID;
 import rdapit.Property;
+import rdapit.typeregistry.PropertyDefinition;
 
 /**
  * Main abstraction interface towards the identifier system containing
@@ -10,10 +13,10 @@ import rdapit.Property;
  */
 public interface IIdentifierSystem {
 	
-	public boolean isIdentifierRegistered(PID pid);
+	public boolean isIdentifierRegistered(PID pid) throws IOException;
 	
-	public Property<?> queryProperty(PID pid, PID propertyIdentifier);
+	public Property<?> queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException;
 	
-	public Property<?> queryProperty(PID pid, String propertyName);
+	public Property<?> queryProperty(PID pid, String propertyName) throws IOException;
 	
 }

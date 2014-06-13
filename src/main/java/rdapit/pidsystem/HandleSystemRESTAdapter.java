@@ -1,5 +1,6 @@
 package rdapit.pidsystem;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -23,8 +24,16 @@ import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.internal.util.Base64;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import rdapit.PID;
+import rdapit.PIDRecord;
 import rdapit.Property;
+import rdapit.typeregistry.PropertyDefinition;
 
 public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
@@ -50,8 +59,22 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public Property<?> queryProperty(PID pid, PID propertyIdentifier) {
-		throw new UnsupportedOperationException("not implemented yet");
+	public Property<?> queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException {
+		
+		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid.getIdentifierName()).queryParam("type", propertyDefinition.getIdentifier().getIdentifierName()).request(MediaType.APPLICATION_JSON).get(String.class);
+		// extract the Handle value data entry from the json response
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = mapper.readTree(pidResponse);
+		JsonNode values = rootNode.get("values");
+		if (!(values.isArray() && values.size() > 0)) throw new IllegalStateException("values must be an array with at least one element");
+		if (values.size() > 1) {
+			// More than one property stored at this record
+			throw new IllegalStateException("PID records with more than one property of same type are not supported yet");
+		}
+		String value = values.get(0).get("data").get("value").asText();
+		// Now generate the property. The property name and value type are already given in its definition. 
+		return propertyDefinition.generateProperty(value);
+		
 	}
 
 	@Override
@@ -59,9 +82,10 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
-	public String queryPIDRecord(PID pid) {
+	public PIDRecord queryPIDRecord(PID pid) throws JsonParseException, JsonMappingException, IOException {
 		String response = individualHandleTarget.resolveTemplate("handle", pid.getIdentifierName()).request(MediaType.APPLICATION_JSON).get(String.class);
-		return response;
+		System.out.println(response);
+		return PIDRecord.fromJson(response);
 	}
 
 	protected URI baseURI;
@@ -105,12 +129,13 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		this.individualHandleTarget = handlesTarget.path("{handle}");
 	}
 
-	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException {
+	public static void main(String[] args) throws Exception {
+		PropertyDefinition propertyDef = new PropertyDefinition(new PID("11043.4/TYPE_TITLE"), "Title", new PID("String"));
 		HandleSystemRESTAdapter hsra = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11053.4/admin", "password");
-		String s = hsra.queryPIDRecord(new PID("11043.4/WEIGEL_TEST1"));
-		System.out.println(s);
 		boolean b = hsra.isIdentifierRegistered(new PID("11043.4/weigel_TEST1"));
 		System.out.println(b);
+		Property<?> pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST1"), propertyDef);
+		System.out.println(pidr.getKey()+": "+pidr.getValueType()+": "+pidr.getValue());
 	}
 
 }
