@@ -16,6 +16,14 @@ public interface IIdentifierSystem {
 
 	public boolean isIdentifierRegistered(PID pid) throws IOException;
 
+	/**
+	 * Queries a single property from the given PID. 
+	 * 
+	 * @param pid
+	 * @param propertyDefinition
+	 * @return the property including a value or null if there is no property of given name defined in this PID record.
+	 * @throws IOException
+	 */
 	public Property<?> queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException;
 
 	public Property<?> queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException;

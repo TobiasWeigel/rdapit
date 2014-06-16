@@ -69,7 +69,8 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = mapper.readTree(pidResponse);
 		JsonNode values = rootNode.get("values");
-		if (!(values.isArray() && values.size() > 0)) throw new IllegalStateException("values must be an array with at least one element");
+		if (!values.isArray()) throw new IllegalStateException("Invalid response format: values must be an array");
+		if (values.size() == 0) return null;
 		if (values.size() > 1) {
 			// More than one property stored at this record
 			throw new IllegalStateException("PID records with more than one property of same type are not supported yet");
@@ -95,7 +96,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	public PIDRecord queryPIDRecord(PID pid) throws JsonParseException, JsonMappingException, IOException {
 		String response = individualHandleTarget.resolveTemplate("handle", pid.getIdentifierName()).request(MediaType.APPLICATION_JSON).get(String.class);
-		System.out.println(response);
 		return PIDRecord.fromJson(response);
 	}
 
@@ -142,15 +142,16 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	public static void main(String[] args) throws Exception {
 		TypeRegistry typeRegistry = new TypeRegistry("http://typeregistry.org/registrar");
-		
-		PropertyDefinition propertyDef = new PropertyDefinition(new PID("11043.4/TYPE_TITLE"), "Title", new PID("String"));
+		PropertyDefinition propertyDef = typeRegistry.queryPropertyDefinition(new PID("11314.2/07841c3f84cbe0d4ff8687d0028c2622"));
+		System.out.println(propertyDef.getIdentifier()+": "+propertyDef.getName()+", value type: "+propertyDef.getValueType());
 		HandleSystemRESTAdapter hsra = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11053.4/admin", "password");
 		boolean b = hsra.isIdentifierRegistered(new PID("11043.4/weigel_TEST1"));
 		System.out.println(b);
-		Property<?> pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST1"), propertyDef);
+		Property<?> pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST2"), propertyDef);
 		System.out.println(pidr.getKey()+": "+pidr.getValueType()+": "+pidr.getValue());
 		pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST2"), "Title", typeRegistry);
 		System.out.println(pidr.getKey()+": "+pidr.getValueType()+": "+pidr.getValue());
+		
 	}
 
 }

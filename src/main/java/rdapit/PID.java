@@ -12,4 +12,9 @@ public class PID {
 		return identifierName;
 	}
 	
+	@Override
+	public String toString() {
+		return identifierName;
+	}
+	
 }

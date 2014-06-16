@@ -14,7 +14,7 @@ import rdapit.PID;
  */
 public interface ITypeRegistry {
 	
-	public PropertyDefinition queryPropertyDefinition(PID propertyIdentifier);
+	public PropertyDefinition queryPropertyDefinition(PID propertyIdentifier) throws IOException;
 	
 	/**
 	 * Retrieves a property definition by its property name. Note that the name
