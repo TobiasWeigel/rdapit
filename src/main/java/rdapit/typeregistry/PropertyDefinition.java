@@ -24,6 +24,17 @@ public class PropertyDefinition {
 		this.valueType = valueType;
 		this.namespace = "";
 	}
+	
+	
+	public PropertyDefinition(PID identifier, String name, PID valueType, String namespace) {
+		super();
+		this.identifier = identifier;
+		this.name = name;
+		this.valueType = valueType;
+		this.namespace = namespace;
+	}
+
+
 	public PID getIdentifier() {
 		return identifier;
 	}

@@ -14,6 +14,13 @@ import rdapit.PID;
  */
 public interface ITypeRegistry {
 	
+	/**
+	 * Retrieves a property definition by its unique identifier.
+	 * 
+	 * @param propertyIdentifier
+	 * @return the property definition or null if there is no such definition.
+	 * @throws IOException on communication errors with a remote registry
+	 */
 	public PropertyDefinition queryPropertyDefinition(PID propertyIdentifier) throws IOException;
 	
 	/**
@@ -22,7 +29,7 @@ public interface ITypeRegistry {
 	 * 
 	 * @param propertyName
 	 * @return a list with any number of entries (may be empty).
-	 * @throws IOException 
+	 * @throws IOException on communication errors with a remote registry
 	 */
 	public List<PropertyDefinition> queryPropertyDefinitionByName(String propertyName) throws IOException;
 	
