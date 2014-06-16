@@ -18,12 +18,12 @@ public class DummyTypeRegistry implements ITypeRegistry {
 	private HashMap<String, Map<String, String>> typeStorage = new HashMap<>();
 	
 	@Override
-	public void createPropertyDefinition(PID propertyIdentifier, PropertyDefinition propertyDefinition) {
+	public void createPropertyDefinition(PropertyDefinition propertyDefinition) {
 		HashMap<String, String> entry = new HashMap<>();
 		entry.put("name", propertyDefinition.getName());
 		entry.put("valuetype", propertyDefinition.getValueType().getIdentifierName());
 		entry.put("namespace", propertyDefinition.getNamespace());
-		typeStorage.put(propertyIdentifier.getIdentifierName(), entry);
+		typeStorage.put(propertyDefinition.getIdentifier().getIdentifierName(), entry);
 	}
 
 	@Override
@@ -55,6 +55,12 @@ public class DummyTypeRegistry implements ITypeRegistry {
 	public void createTypeDefinition(PID typeIdentifier, TypeDefinition typeDefinition) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void removePropertyDefinition(PID propertyIdentifier) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

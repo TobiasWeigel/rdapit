@@ -17,4 +17,10 @@ public class PID {
 		return identifierName;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof PID) return identifierName.equals(((PID) obj).identifierName);
+		else return super.equals(obj);
+	}
+	
 }
