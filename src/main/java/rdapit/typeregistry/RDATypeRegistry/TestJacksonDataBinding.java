@@ -4,8 +4,9 @@
  * and open the template in the editor.
  */
 
-package rdapit.typeregistry;
+package main.java.rdapit.typeregistry.RDATypeRegistry;
 
+import main.java.rdapit.typeregistry.RDATypeRegistry.RDAType;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,7 +23,7 @@ public class TestJacksonDataBinding {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         
-        TRType trt = mapper.readValue(new URL(url), TRType.class);
+        RDAType trt = mapper.readValue(new URL(url), RDAType.class);
         
          System.out.println(trt.toString());
         

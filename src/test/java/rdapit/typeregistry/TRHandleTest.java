@@ -6,6 +6,8 @@
 
 package rdapit.typeregistry;
 
+import main.java.rdapit.typeregistry.RDATypeRegistry.RDAType;
+import main.java.rdapit.typeregistry.RDATypeRegistry.RDATypeRegistry;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,9 +50,9 @@ public class TRHandleTest {
     public void testRead() {
         System.out.println("Testing the read method ...");
         String id = "11314.2/0aecc18032a27d5e0b242fcd31cc2e72";
-        TRHandle instance = new TRHandle("http://typeregistry.org/registrar/records/");
+        RDATypeRegistry instance = new RDATypeRegistry("http://typeregistry.org/registrar/records/");
         String expResult = "success";
-        TRType result = instance.read(id);
+        RDAType result = instance.read(id);
         assertEquals("Correct result", expResult, result.getStatus());
         // TODO review the generated test code and remove the default call to fail.
         //fail("The test case is a prototype.");

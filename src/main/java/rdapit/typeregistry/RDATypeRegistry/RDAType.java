@@ -1,9 +1,9 @@
-package rdapit.typeregistry;
+package main.java.rdapit.typeregistry.RDATypeRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TRType {
+public class RDAType {
 
     private String status;
     private int code;
@@ -14,7 +14,7 @@ public class TRType {
     private String explanationOfUse;
     private String humanDescription;
 
-    public TRType() {
+    public RDAType() {
         this.status = "";       
         this.code = -1;
         this.model = "";
