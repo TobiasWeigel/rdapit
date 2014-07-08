@@ -14,24 +14,37 @@ public class PropertyDefinition {
 	protected final PID identifier;
 	
 	protected final String name;
-	protected final PID valueType;
+	protected final PID range;
 	protected final String namespace;
 	
-	public PropertyDefinition(PID identifier, String name, PID valueType) {
+	protected final String description;
+	
+	public PropertyDefinition(PID identifier, String name, PID range) {
 		super();
 		this.identifier = identifier;
 		this.name = name;
-		this.valueType = valueType;
+		this.range = range;
 		this.namespace = "";
+		this.description = "";
 	}
 	
 	
-	public PropertyDefinition(PID identifier, String name, PID valueType, String namespace) {
+	public PropertyDefinition(PID identifier, String name, PID range, String namespace) {
 		super();
 		this.identifier = identifier;
 		this.name = name;
-		this.valueType = valueType;
+		this.range = range;
 		this.namespace = namespace;
+		this.description = "";
+	}
+	
+	public PropertyDefinition(PID identifier, String name, PID range, String namespace, String description) {
+		super();
+		this.identifier = identifier;
+		this.name = name;
+		this.range = range;
+		this.namespace = namespace;
+		this.description = description;
 	}
 
 
@@ -42,7 +55,7 @@ public class PropertyDefinition {
 		return name;
 	}
 	public PID getValueType() {
-		return valueType;
+		return range;
 	}
 	public String getNamespace() {
 		return namespace;
@@ -56,11 +69,11 @@ public class PropertyDefinition {
 	 *   an instance of Property parameterized with the ValueType
 	 */
 	public Property<?> generateProperty(Object value) {
-		if (valueType.getIdentifierName().equalsIgnoreCase(ELEMENTAL_VALUETYPE_STRING)) {
+		if (range.getIdentifierName().equalsIgnoreCase(ELEMENTAL_VALUETYPE_STRING)) {
 			if (!(value instanceof String)) throw new IllegalArgumentException("Expected instance of String, got instance of "+value.getClass());
-			return new Property<String>(name, valueType.getIdentifierName(), (String) value); // TODO: valueType identifierName is not entirely correct, must be read from an entry in that PID's record!
+			return new Property<String>(name, range.getIdentifierName(), (String) value); // TODO: valueType identifierName is not entirely correct, must be read from an entry in that PID's record!
 		}
-		else throw new IllegalStateException("Unknown elemental value type: "+valueType.getIdentifierName());
+		else throw new IllegalStateException("Unknown elemental value type: "+range.getIdentifierName());
 	}
 	
 	
