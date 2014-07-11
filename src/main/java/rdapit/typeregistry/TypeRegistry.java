@@ -87,6 +87,7 @@ public class TypeRegistry implements ITypeRegistry {
 	@Override
 	public void createPropertyDefinition(PropertyDefinition propertyDefinition) {
 		throw new UnsupportedOperationException("not implemented yet");
+		// TODO: also store PIT.Construct field, PIT.Version
 	}
 
 	@Override
@@ -97,6 +98,7 @@ public class TypeRegistry implements ITypeRegistry {
 	@Override
 	public void createTypeDefinition(PID typeIdentifier, TypeDefinition typeDefinition) {
 		throw new UnsupportedOperationException("not implemented yet");
+		// TODO: also store PIT.Construct field, PIT.Version
 	}
 
 	@Override

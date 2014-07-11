@@ -8,7 +8,7 @@ public class Property<VT> {
 	public static final String TYPE_STRING = "0.TYPE/STRING";
 	public static final String TYPE_INTEGER = "0.TYPE/INTEGER";
 
-	private String key;
+	private String key; // is a PID
 	private String valueType;
 	private VT value;
 	
