@@ -1,7 +1,9 @@
 package rdapit;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -10,33 +12,54 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * A simple PID record encapsulation.
+ * 
+ */
 public class PIDRecord {
 
 	private final PID pid;
-	
-	private HashMap<String, Property<?>> properties;
-	
+
+	private HashMap<String, String> properties;
+
 	public PIDRecord(PID pid) {
 		this.pid = pid;
-		this.properties = new HashMap<String, Property<?>>();
+		this.properties = new HashMap<String, String>();
 	}
-	
-	
+
 	@JsonCreator
-	private PIDRecord(@JsonProperty("handle") String identifier, @JsonProperty("values") Map<String, Property<?>> properties) {
+	private PIDRecord(@JsonProperty("handle") String identifier, @JsonProperty("values") Map<String, String> properties) {
 		this.pid = new PID(identifier);
-		this.properties = new HashMap<String, Property<?>>(properties);
+		this.properties = new HashMap<String, String>(properties);
 	}
-	
-	public static PIDRecord fromJson(String inputString) throws JsonProcessingException, IOException  {
+
+	public static PIDRecord fromJson(String inputString) throws JsonProcessingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode root = mapper.readTree(inputString);
 		PIDRecord pidRecord = new PIDRecord(new PID(root.get("handle").asText()));
-		for (JsonNode valueNode: root.get("values")) {
+		for (JsonNode valueNode : root.get("values")) {
 			// key, ValueType, value --> all Strings!
 			throw new UnsupportedOperationException("not yet implemented");
 		}
 		return pidRecord;
-	} 
-	
+	}
+
+	public void addProperties(Map<String, String> newProperties) {
+		this.properties.putAll(newProperties);
+	}
+
+	@JsonProperty("values")
+	public Collection<Map<String, String>> getProperties() {
+		Collection<Map<String, String>> result = new LinkedList<Map<String, String>>();
+		int idx = 0;
+		for (String key : properties.keySet()) {
+			idx += 1;
+			Map<String, String> handleValue = new HashMap<String, String>();
+			handleValue.put("index", "" + idx);
+			handleValue.put("type", key);
+			handleValue.put("data", properties.get(key));
+			result.add(handleValue);
+		}
+		return result;
+	}
 }

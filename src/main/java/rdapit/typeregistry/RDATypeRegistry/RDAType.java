@@ -1,4 +1,4 @@
-package main.java.rdapit.typeregistry.RDATypeRegistry;
+package rdapit.typeregistry.RDATypeRegistry;
 
 import java.util.HashMap;
 import java.util.Map;

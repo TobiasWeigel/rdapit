@@ -62,16 +62,15 @@ public class PropertyDefinition {
 	}
 
 	/**
-	 * Instance-based factory method. Fabricates a concrete instance of a property with a valid ValueType and the given value.  
+	 * Verifies that the given value conforms to the property's type range.  
 	 * 
-	 * @param value an instance of the proper value type
+	 * @param value 
 	 * @return
-	 *   an instance of Property parameterized with the ValueType
+	 *   true or false
 	 */
-	public Property<?> generateProperty(Object value) {
+	public boolean generateProperty(Object value) {
 		if (range.getIdentifierName().equalsIgnoreCase(ELEMENTAL_VALUETYPE_STRING)) {
-			if (!(value instanceof String)) throw new IllegalArgumentException("Expected instance of String, got instance of "+value.getClass());
-			return new Property<String>(name, range.getIdentifierName(), (String) value); // TODO: valueType identifierName is not entirely correct, must be read from an entry in that PID's record!
+			return (value instanceof String);
 		}
 		else throw new IllegalStateException("Unknown elemental value type: "+range.getIdentifierName());
 	}

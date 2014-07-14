@@ -2,6 +2,7 @@ package rdapit.pidsystem;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import rdapit.PID;
@@ -17,6 +18,13 @@ import rdapit.typeregistry.TypeDefinition;
  */
 public interface IIdentifierSystem {
 
+	/**
+	 * Checks whether the given PID is already registered.
+	 * 
+	 * @param pid
+	 * @return True or false
+	 * @throws IOException
+	 */
 	public boolean isIdentifierRegistered(PID pid) throws IOException;
 
 	/**
@@ -24,13 +32,28 @@ public interface IIdentifierSystem {
 	 * 
 	 * @param pid
 	 * @param propertyDefinition
-	 * @return the property including a value or null if there is no property of
-	 *         given name defined in this PID record.
+	 * @return the property value or null if there is no property of given name
+	 *         defined in this PID record.
 	 * @throws IOException
 	 */
-	public Property<?> queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException;
+	public String queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException;
 
-	public Property<?> queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException;
+	/**
+	 * Queries a single property from the given PID.
+	 * 
+	 * @param pid
+	 * @param propertyName
+	 * @param typeRegistry
+	 *            required to map from the property name to a proper property
+	 *            definition
+	 * @return the property value or null if there is no property of given name
+	 *         defined in this PID record.
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 *             if the given property name is not unique in the type registry
+	 *             or cannot be found.
+	 */
+	public String queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException;
 
 	/**
 	 * Registers a new PID with given property values. The method decides on a
@@ -38,9 +61,12 @@ public interface IIdentifierSystem {
 	 * failure due to potential overwrites.
 	 * 
 	 * @param properties
+	 *            A simple dictionary with string keys and string values that
+	 *            contains the initial PID record.
 	 * @return the name of the registered PID
+	 * @throws IOException
 	 */
-	public PID registerPID(Collection<Property<?>> properties);
+	public PID registerPID(Map<String, String> properties) throws IOException;
 
 	/**
 	 * Queries all properties of a given type available from the given PID. If
@@ -54,8 +80,16 @@ public interface IIdentifierSystem {
 	 * @return all property values present in the record of the given PID.
 	 * @throws IOException
 	 */
-	public Set<Property<?>> queryByType(PID pid, TypeDefinition typeDefinition) throws IOException;
+	public Map<String, String> queryByType(PID pid, TypeDefinition typeDefinition) throws IOException;
 
-	public Set<Property<?>> queryByType(PID pid, PID typeIdentifier, ITypeRegistry typeRegistry) throws IOException;
+	public Map<String, String> queryByType(PID pid, PID typeIdentifier, ITypeRegistry typeRegistry) throws IOException;
+
+	/**
+	 * Remove the given PID. Obviously, this method is only for testing
+	 * purposes, since we should not delete persistent identifiers...
+	 * 
+	 * @param pid
+	 */
+	public void deletePID(PID pid);
 
 }

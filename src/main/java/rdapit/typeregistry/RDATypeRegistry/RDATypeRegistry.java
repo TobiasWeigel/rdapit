@@ -1,4 +1,4 @@
-package main.java.rdapit.typeregistry.RDATypeRegistry;
+package rdapit.typeregistry.RDATypeRegistry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

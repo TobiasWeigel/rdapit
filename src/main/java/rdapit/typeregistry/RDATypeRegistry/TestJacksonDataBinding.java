@@ -4,9 +4,9 @@
  * and open the template in the editor.
  */
 
-package main.java.rdapit.typeregistry.RDATypeRegistry;
+package rdapit.typeregistry.RDATypeRegistry;
 
-import main.java.rdapit.typeregistry.RDATypeRegistry.RDAType;
+import rdapit.typeregistry.RDATypeRegistry.RDAType;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
