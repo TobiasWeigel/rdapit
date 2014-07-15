@@ -73,7 +73,8 @@ public interface IIdentifierSystem {
 	 * 
 	 * @param pid
 	 * @param typeDefinition
-	 * @return all property values present in the record of the given PID.
+	 * @return a map with property identifiers mapping to values. Contains all
+	 *         property values present in the record of the given PID.
 	 * @throws IOException
 	 */
 	public Map<String, String> queryByType(PID pid, TypeDefinition typeDefinition) throws IOException;
