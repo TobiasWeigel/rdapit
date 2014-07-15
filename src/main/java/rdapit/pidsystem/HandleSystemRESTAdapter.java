@@ -28,8 +28,6 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.internal.util.Base64;
 
-import rdapit.PID;
-import rdapit.PIDRecord;
 import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;

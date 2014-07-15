@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import rdapit.PID;
+import rdapit.pidsystem.PID;
 
 /**
  * Mock-up for the type registry. Stores information locally. Used for unit testing.

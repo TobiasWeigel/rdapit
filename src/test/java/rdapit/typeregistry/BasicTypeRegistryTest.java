@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 
-import rdapit.PID;
+import rdapit.pidsystem.PID;
 
 public abstract class BasicTypeRegistryTest {
 

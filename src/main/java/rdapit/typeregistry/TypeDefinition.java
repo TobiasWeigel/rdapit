@@ -2,7 +2,7 @@ package rdapit.typeregistry;
 
 import java.util.HashMap;
 
-import rdapit.PID;
+import rdapit.pidsystem.PID;
 
 /**
  * Encapsulates a type in the type registry, roughly defined as a set of

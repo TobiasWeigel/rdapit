@@ -2,13 +2,15 @@ package rdapit.typeregistry.RDATypeRegistry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.*;
 import java.net.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import rdapit.PID;
+
+import rdapit.pidsystem.PID;
 import rdapit.typeregistry.*;
 
 public class RDATypeRegistry implements ITypeRegistry {

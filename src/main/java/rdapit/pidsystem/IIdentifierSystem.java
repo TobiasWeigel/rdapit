@@ -1,12 +1,8 @@
 package rdapit.pidsystem;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
-import rdapit.PID;
-import rdapit.Property;
 import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;

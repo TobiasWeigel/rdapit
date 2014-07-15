@@ -1,7 +1,6 @@
 package rdapit.typeregistry;
 
-import rdapit.PID;
-import rdapit.Property;
+import rdapit.pidsystem.PID;
 
 /**
  * Encapsulates a single property definition in the type registry.

@@ -1,4 +1,4 @@
-package rdapit;
+package rdapit.pidsystem;
 
 import java.io.IOException;
 import java.util.Collection;

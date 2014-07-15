@@ -3,7 +3,7 @@ package rdapit.typeregistry;
 import java.io.IOException;
 import java.util.List;
 
-import rdapit.PID;
+import rdapit.pidsystem.PID;
 
 /**
  * Main abstraction interface towards the type registry. Contains all methods

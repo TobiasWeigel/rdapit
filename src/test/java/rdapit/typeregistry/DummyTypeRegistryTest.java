@@ -2,7 +2,7 @@ package rdapit.typeregistry;
 
 import org.junit.Before;
 
-import rdapit.PID;
+import rdapit.pidsystem.PID;
 
 public class DummyTypeRegistryTest extends BasicTypeRegistryTest {
 
