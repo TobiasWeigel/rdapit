@@ -13,7 +13,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
-import rdapit.pitservice.TypingRESTServer;
+import rdapit.pitservice.TypingRESTResource;
 
 public class RESTServiceTest extends JerseyTest {
 
@@ -27,7 +27,7 @@ public class RESTServiceTest extends JerseyTest {
 
 	@Override
 	protected Application configure() {
-		return new ResourceConfig(TypingRESTServer.class);
+		return new ResourceConfig(TypingRESTResource.class);
 	}
 
 }

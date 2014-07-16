@@ -63,4 +63,10 @@ public class DummyTypeRegistry implements ITypeRegistry {
 		
 	}
 
+	@Override
+	public Object query(PID identifier) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

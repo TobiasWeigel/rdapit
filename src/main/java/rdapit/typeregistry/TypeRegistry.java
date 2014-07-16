@@ -106,4 +106,10 @@ public class TypeRegistry implements ITypeRegistry {
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
+	@Override
+	public Object query(PID identifier) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("not implemented yet");
+	}
+
 }

@@ -9,6 +9,7 @@ import rdapit.pidsystem.PID;
 public class PropertyDefinition {
 	
 	public static final String ELEMENTAL_VALUETYPE_STRING = "String";
+	public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "11043.4/pit.construct";
 
 	protected final PID identifier;
 	

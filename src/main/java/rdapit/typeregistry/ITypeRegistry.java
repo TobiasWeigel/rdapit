@@ -61,5 +61,14 @@ public interface ITypeRegistry {
 
 	public void createTypeDefinition(PID typeIdentifier, TypeDefinition typeDefinition);
 
+	/**
+	 * Generic query method. Requires no a priori knowledge about the kind of
+	 * entity registered (property, type, ...).
+	 * 
+	 * @param identifier
+	 * @return null if there is no object with given identifier, or an instance
+	 *         of PropertyDefinition or TypeDefinition.
+	 */
+	public Object query(PID identifier);
 
 }

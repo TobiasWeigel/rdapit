@@ -214,4 +214,10 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		throw new UnsupportedOperationException("not implemented");
 	}
 
+	@Override
+	public boolean isTypeRegistryPID(PID pid) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("not implemented");
+	}
+
 }

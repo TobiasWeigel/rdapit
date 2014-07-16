@@ -70,4 +70,10 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 
 	}
 
+	@Override
+	public boolean isTypeRegistryPID(PID pid) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

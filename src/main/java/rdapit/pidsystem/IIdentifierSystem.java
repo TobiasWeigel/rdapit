@@ -89,4 +89,16 @@ public interface IIdentifierSystem {
 	 */
 	public void deletePID(PID pid);
 
+	/**
+	 * Determines whether the given PID is registered and a special identifier
+	 * that leads to a type registry record.
+	 * 
+	 * @param pid
+	 * @return true if the PID is registered and is expected to be resolvable by
+	 *         a TypeRegistry. Returns false if the PID is either unregistered
+	 *         or registered but not an identifier for a TypeRegistry entry
+	 *         (i.e. a normal PID record).
+	 */
+	public boolean isTypeRegistryPID(PID pid);
+
 }

@@ -16,13 +16,15 @@ import rdapit.typeregistry.TypeDefinition;
  */
 public class TypingService implements ITypingService {
 
-	protected IIdentifierSystem identifierSystem;
-	protected ITypeRegistry typeRegistry;
+	protected final IIdentifierSystem identifierSystem;
+	protected final ITypeRegistry typeRegistry;
+	protected final PropertyDefinition pitmarkerPropertyDefinition;
 
-	public TypingService(IIdentifierSystem identifierSystem, ITypeRegistry typeRegistry) {
+	public TypingService(IIdentifierSystem identifierSystem, ITypeRegistry typeRegistry) throws IOException {
 		super();
 		this.identifierSystem = identifierSystem;
 		this.typeRegistry = typeRegistry;
+		this.pitmarkerPropertyDefinition = typeRegistry.queryPropertyDefinition(new PID(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY));
 	}
 
 	@Override
@@ -82,6 +84,34 @@ public class TypingService implements ITypingService {
 	public boolean conformsToType(PID pid, PID typeIdentifier) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
+	}
+
+	@Override
+	public Object genericResolve(PID pid) throws IOException {
+		// ask identifier system whether this is a type registry record
+		boolean istypereg = identifierSystem.isTypeRegistryPID(pid);
+		if (istypereg) {
+			Object obj = typeRegistry.query(pid);
+			if (obj == null) {
+				throw new IOException(
+						"Conflicting records: Identifier registered in PID system and indicating a registry entry, but not in type registry / registered in an unknown type registry!");
+			}
+			if (obj instanceof PropertyDefinition) {
+				return (PropertyDefinition) obj;
+			} else if (obj instanceof TypeDefinition) {
+				return (TypeDefinition) obj;
+			} else
+				throw new IOException("Unknown kind of type registry entry!");
+		} else {
+			// this is a generic PID record (or unresolvable)
+			return getAllProperties(pid);
+		}
+	}
+
+	@Override
+	public boolean isTypeRegistryPID(PID pid) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 }
