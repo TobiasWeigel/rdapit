@@ -24,8 +24,20 @@ public interface ITypingService extends IIdentifierSystem {
 	 */
 	public Map<String, String> getAllProperties(String pid);
 
+	/**
+	 * Retrieves a property definition
+	 * 
+	 * @param propertyIdentifier
+	 * @return null if there is no property with given identifier, the definition record otherwise.
+	 */
 	public PropertyDefinition describeProperty(String propertyIdentifier);
 
+	/**
+	 * Retrieves a type definition
+	 * 
+	 * @param typeIdentifier
+	 * @return null if there is no type with given identifier, the definition record otherwise.
+	 */
 	public TypeDefinition describeType(String typeIdentifier);
 
 	public boolean conformsToType(String pid, String typeIdentifier);

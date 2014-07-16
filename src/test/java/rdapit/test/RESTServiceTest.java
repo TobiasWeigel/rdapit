@@ -21,7 +21,7 @@ public class RESTServiceTest extends JerseyTest {
 	public void testSimpleResolve() {
 		URI baseURI = UriBuilder.fromUri(this.getBaseUri()).build();
 		Client client = ClientBuilder.newBuilder().build();
-		assertEquals(200, client.target(baseURI).path("pitapi").path("resolve").request().get().getStatus());
+		assertEquals(200, client.target(baseURI).path("pitapi").path("pid").path("").request().get().getStatus());
 
 	}
 
