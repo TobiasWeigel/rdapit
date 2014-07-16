@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import rdapit.pidsystem.PID;
-
 /**
  * Encapsulates a type in the type registry, roughly defined as a set of
  * properties.
@@ -13,7 +11,10 @@ import rdapit.pidsystem.PID;
  */
 public class TypeDefinition {
 
-	protected PID identifier;
+	/**
+	 * PID of the type.
+	 */
+	protected String identifier;
 
 	/**
 	 * Value (boolean) True means mandatory, False means optional.
@@ -23,7 +24,7 @@ public class TypeDefinition {
 	protected String name;
 	protected String description;
 
-	public TypeDefinition(PID identifier, String name, String description) {
+	public TypeDefinition(String identifier, String name, String description) {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;

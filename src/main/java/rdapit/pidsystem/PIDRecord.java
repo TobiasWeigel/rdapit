@@ -18,25 +18,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class PIDRecord {
 
-	private final PID pid;
+	private final String pid;
 
 	private HashMap<String, String> properties;
 
-	public PIDRecord(PID pid) {
+	public PIDRecord(String pid) {
 		this.pid = pid;
 		this.properties = new HashMap<String, String>();
 	}
 
 	@JsonCreator
 	private PIDRecord(@JsonProperty("handle") String identifier, @JsonProperty("values") Map<String, String> properties) {
-		this.pid = new PID(identifier);
+		this.pid = new String(identifier);
 		this.properties = new HashMap<String, String>(properties);
 	}
 
 	public static PIDRecord fromJson(String inputString) throws JsonProcessingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode root = mapper.readTree(inputString);
-		PIDRecord pidRecord = new PIDRecord(new PID(root.get("handle").asText()));
+		PIDRecord pidRecord = new PIDRecord(new String(root.get("handle").asText()));
 		for (JsonNode valueNode : root.get("values")) {
 			// key, ValueType, value --> all Strings!
 			throw new UnsupportedOperationException("not yet implemented");

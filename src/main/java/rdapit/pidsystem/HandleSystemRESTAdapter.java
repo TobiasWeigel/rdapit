@@ -61,16 +61,16 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public boolean isIdentifierRegistered(PID pid) {
-		Response response = individualHandleTarget.resolveTemplate("handle", pid.getIdentifierName()).request(MediaType.APPLICATION_JSON).head();
+	public boolean isIdentifierRegistered(String pid) {
+		Response response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).head();
 		return response.getStatus() == 200;
 	}
 
 	@Override
-	public String queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException {
+	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException {
 
-		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid.getIdentifierName())
-				.queryParam("type", propertyDefinition.getIdentifier().getIdentifierName()).request(MediaType.APPLICATION_JSON).get(String.class);
+		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid).queryParam("type", propertyDefinition.getIdentifier())
+				.request(MediaType.APPLICATION_JSON).get(String.class);
 		// extract the Handle value data entry from the json response
 		JsonNode rootNode = objectMapper.readTree(pidResponse);
 		JsonNode values = rootNode.get("values");
@@ -88,7 +88,7 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public String queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
+	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
 		// Retrieve property definition given the name
 		List<PropertyDefinition> propertyDefinitions = typeRegistry.queryPropertyDefinitionByName(propertyName);
 		if (propertyDefinitions.size() > 1) {
@@ -100,8 +100,8 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		return queryProperty(pid, propertyDefinitions.get(0));
 	}
 
-	public PIDRecord queryPIDRecord(PID pid) throws JsonParseException, JsonMappingException, IOException {
-		String response = individualHandleTarget.resolveTemplate("handle", pid.getIdentifierName()).request(MediaType.APPLICATION_JSON).get(String.class);
+	public PIDRecord queryPIDRecord(String pid) throws JsonParseException, JsonMappingException, IOException {
+		String response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get(String.class);
 		return PIDRecord.fromJson(response);
 	}
 
@@ -153,19 +153,19 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	public static void main(String[] args) throws Exception {
 		// test read from registry and HS adapter
 		TypeRegistry typeRegistry = new TypeRegistry("http://typeregistry.org/registrar");
-		PropertyDefinition propertyDef = typeRegistry.queryPropertyDefinition(new PID("11314.2/07841c3f84cbe0d4ff8687d0028c2622"));
-		System.out.println(propertyDef.getIdentifier() + ": " + propertyDef.getName() + ", value type: " + propertyDef.getValueType());
+		PropertyDefinition propertyDef = typeRegistry.queryPropertyDefinition("11314.2/07841c3f84cbe0d4ff8687d0028c2622");
+		System.out.println(propertyDef.getIdentifier() + ": " + propertyDef.getName() + ", value type: " + propertyDef.getRange());
 		HandleSystemRESTAdapter hsra = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
-		boolean b = hsra.isIdentifierRegistered(new PID("11043.4/weigel_TEST1"));
+		boolean b = hsra.isIdentifierRegistered("11043.4/weigel_TEST1");
 		System.out.println(b);
-		String pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST2"), propertyDef);
-		System.out.println(propertyDef.getName() + ": " + propertyDef.getValueType() + ": " + pidr);
-		pidr = hsra.queryProperty(new PID("11043.4/WEIGEL_TEST2"), "Title", typeRegistry);
+		String pidr = hsra.queryProperty("11043.4/WEIGEL_TEST2", propertyDef);
+		System.out.println(propertyDef.getName() + ": " + propertyDef.getRange() + ": " + pidr);
+		pidr = hsra.queryProperty("11043.4/WEIGEL_TEST2", "Title", typeRegistry);
 		System.out.println("Title: " + pidr);
 		// test create PID
 		HashMap<String, String> propMap = new HashMap<String, String>();
 		propMap.put("author", "John D.");
-		PID pid = hsra.registerPID(propMap);
+		String pid = hsra.registerPID(propMap);
 		System.out.println("New PID registered: " + pid);
 
 	}
@@ -176,17 +176,16 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public PID registerPID(Map<String, String> properties) throws IOException {
+	public String registerPID(Map<String, String> properties) throws IOException {
 		Response response;
-		PID pid;
+		String pid = generatePIDName();
 		do {
-			pid = new PID(generatePIDName());
 			PIDRecord pidRecord = new PIDRecord(pid);
 			pidRecord.addProperties(properties);
 			// PUT record to HS
 			String jsonText = objectMapper.writeValueAsString(pidRecord);
-			response = individualHandleTarget.resolveTemplate("handle", pid.getIdentifierName()).queryParam("overwrite", false)
-					.request(MediaType.APPLICATION_JSON).header("Authorization", "Basic " + authInfo).put(Entity.json(jsonText));
+			response = individualHandleTarget.resolveTemplate("handle", pid).queryParam("overwrite", false).request(MediaType.APPLICATION_JSON)
+					.header("Authorization", "Basic " + authInfo).put(Entity.json(jsonText));
 			// status 409 is sent in case the Handle already exists
 		} while (response.getStatus() == 409);
 		// Evaluate response
@@ -197,25 +196,25 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public Map<String, String> queryByType(PID pid, TypeDefinition typeDefinition) throws IOException {
+	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override
-	public Map<String, String> queryByType(PID pid, PID typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
+	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override
-	public void deletePID(PID pid) {
+	public void deletePID(String pid) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override
-	public boolean isTypeRegistryPID(PID pid) {
+	public boolean isTypeRegistryPID(String pid) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}

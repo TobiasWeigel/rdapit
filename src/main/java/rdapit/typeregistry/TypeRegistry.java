@@ -11,8 +11,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
-import rdapit.pidsystem.PID;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -43,8 +41,8 @@ public class TypeRegistry implements ITypeRegistry {
 	}
 
 	@Override
-	public PropertyDefinition queryPropertyDefinition(PID propertyIdentifier) throws IOException {
-		String response = idTarget.resolveTemplate("id", propertyIdentifier.getIdentifierName()).request(MediaType.APPLICATION_JSON).get(String.class);
+	public PropertyDefinition queryPropertyDefinition(String propertyIdentifier) throws IOException {
+		String response = idTarget.resolveTemplate("id", propertyIdentifier).request(MediaType.APPLICATION_JSON).get(String.class);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = mapper.readTree(response);
 		if (rootNode.get("code").asInt() != 200) throw new TypeRegistryException(rootNode);
@@ -55,7 +53,7 @@ public class TypeRegistry implements ITypeRegistry {
 			if (entryKV.get("key").asText().equalsIgnoreCase("name")) propName = entryKV.get("val").asText();
 			else if (entryKV.get("key").asText().equalsIgnoreCase("type")) valuetype = entryKV.get("val").asText();
 		}
-		PropertyDefinition result = new PropertyDefinition(new PID(entry.get("ID").asText()), propName, new PID(valuetype));
+		PropertyDefinition result = new PropertyDefinition(entry.get("ID").asText(), propName, valuetype);
 		return result;
 	}
 
@@ -78,7 +76,7 @@ public class TypeRegistry implements ITypeRegistry {
 			}
 			if (!valuetype.isEmpty() && !propertyNameFromRecord.isEmpty()) {
 				// found both value type and original property name; add valid property definition to result list
-				results.add(new PropertyDefinition(new PID(entry.get("ID").asText()), propertyNameFromRecord, new PID(valuetype)));
+				results.add(new PropertyDefinition(entry.get("ID").asText(), propertyNameFromRecord, valuetype));
 			}
 		}
 		return results;
@@ -91,23 +89,23 @@ public class TypeRegistry implements ITypeRegistry {
 	}
 
 	@Override
-	public TypeDefinition queryTypeDefinition(PID typeIdentifier) {
+	public TypeDefinition queryTypeDefinition(String typeIdentifier) {
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 	@Override
-	public void createTypeDefinition(PID typeIdentifier, TypeDefinition typeDefinition) {
+	public void createTypeDefinition(String typeIdentifier, TypeDefinition typeDefinition) {
 		throw new UnsupportedOperationException("not implemented yet");
 		// TODO: also store PIT.Construct field, PIT.Version
 	}
 
 	@Override
-	public void removePropertyDefinition(PID propertyIdentifier) throws IOException {
+	public void removePropertyDefinition(String propertyIdentifier) throws IOException {
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 	@Override
-	public Object query(PID identifier) {
+	public Object query(String identifier) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented yet");
 	}

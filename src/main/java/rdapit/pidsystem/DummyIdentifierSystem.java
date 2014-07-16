@@ -20,17 +20,17 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	private HashMap<String, HashMap<String, String>> storage = new HashMap<>();
 
 	@Override
-	public boolean isIdentifierRegistered(PID pid) throws IOException {
-		return storage.containsKey(pid.getIdentifierName());
+	public boolean isIdentifierRegistered(String pid) throws IOException {
+		return storage.containsKey(pid);
 	}
 
 	@Override
-	public String queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException {
-		return storage.get(pid.getIdentifierName()).get(propertyDefinition.getIdentifier().getIdentifierName());
+	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException {
+		return storage.get(pid).get(propertyDefinition.getIdentifier());
 	}
 
 	@Override
-	public String queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
+	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
 		List<PropertyDefinition> l = typeRegistry.queryPropertyDefinitionByName(propertyName);
 		if (l.size() > 1)
 			throw new IllegalArgumentException("Property name not unique - arbitration not supported");
@@ -40,38 +40,38 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	}
 
 	@Override
-	public PID registerPID(Map<String, String> properties) throws IOException {
+	public String registerPID(Map<String, String> properties) throws IOException {
 		String p = UUID.randomUUID().toString();
 		storage.put(p, new HashMap<>(properties));
-		return new PID(p);
+		return p;
 	}
 
 	@Override
-	public Map<String, String> queryByType(PID pid, TypeDefinition typeDefinition) throws IOException {
-		Map<String, String> map = storage.get(pid.getIdentifierName());
+	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
+		Map<String, String> map = storage.get(pid);
 		Map<String, String> result = new HashMap<>();
 		for (PropertyDefinition pd : typeDefinition.getAllProperties()) {
-			String s = map.get(pd.getIdentifier().getIdentifierName());
+			String s = map.get(pd.getIdentifier());
 			if (s != null)
-				result.put(pd.getIdentifier().getIdentifierName(), s);
+				result.put(pd.getIdentifier(), s);
 		}
 		return result;
 	}
 
 	@Override
-	public Map<String, String> queryByType(PID pid, PID typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
+	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void deletePID(PID pid) {
+	public void deletePID(String pid) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public boolean isTypeRegistryPID(PID pid) {
+	public boolean isTypeRegistryPID(String pid) {
 		// TODO Auto-generated method stub
 		return false;
 	}

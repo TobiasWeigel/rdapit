@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 
 import rdapit.pidsystem.DummyIdentifierSystem;
 import rdapit.pidsystem.IIdentifierSystem;
-import rdapit.pidsystem.PID;
 import rdapit.typeregistry.DummyTypeRegistry;
 import rdapit.typeregistry.ITypeRegistry;
 
@@ -32,7 +31,7 @@ public class TypingRESTResource {
 	@Path("/generic/{identifier}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response resolveGenericPID(@PathParam("identifier") String identifier) throws IOException {
-		Object obj = typingService.genericResolve(new PID(identifier));
+		Object obj = typingService.genericResolve(identifier);
 		if (obj == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(obj).build();
@@ -42,7 +41,7 @@ public class TypingRESTResource {
 	@Path("/pid/{identifier}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response resolvePID(@PathParam("identifier") String identifier) throws IOException {
-		Map<String, String> result = typingService.getAllProperties(new PID(identifier));
+		Map<String, String> result = typingService.getAllProperties(identifier);
 		if (result == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(result).build();

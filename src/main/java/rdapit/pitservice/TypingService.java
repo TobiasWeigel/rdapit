@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import rdapit.pidsystem.IIdentifierSystem;
-import rdapit.pidsystem.PID;
 import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
@@ -24,70 +23,70 @@ public class TypingService implements ITypingService {
 		super();
 		this.identifierSystem = identifierSystem;
 		this.typeRegistry = typeRegistry;
-		this.pitmarkerPropertyDefinition = typeRegistry.queryPropertyDefinition(new PID(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY));
+		this.pitmarkerPropertyDefinition = typeRegistry.queryPropertyDefinition(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY);
 	}
 
 	@Override
-	public boolean isIdentifierRegistered(PID pid) throws IOException {
+	public boolean isIdentifierRegistered(String pid) throws IOException {
 		return identifierSystem.isIdentifierRegistered(pid);
 	}
 
 	@Override
-	public String queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException {
+	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException {
 		return identifierSystem.queryProperty(pid, propertyDefinition);
 	}
 
 	@Override
-	public String queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
+	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
 		return identifierSystem.queryProperty(pid, propertyName, typeRegistry);
 	}
 
 	@Override
-	public PID registerPID(Map<String, String> properties) throws IOException {
+	public String registerPID(Map<String, String> properties) throws IOException {
 		return identifierSystem.registerPID(properties);
 	}
 
 	@Override
-	public Map<String, String> queryByType(PID pid, TypeDefinition typeDefinition) throws IOException {
+	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
 		return identifierSystem.queryByType(pid, typeDefinition);
 	}
 
 	@Override
-	public Map<String, String> queryByType(PID pid, PID typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
+	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
 		return identifierSystem.queryByType(pid, typeIdentifier, typeRegistry);
 	}
 
 	@Override
-	public void deletePID(PID pid) {
+	public void deletePID(String pid) {
 		identifierSystem.deletePID(pid);
 	}
 
 	@Override
-	public Map<String, String> getAllProperties(PID pid) {
+	public Map<String, String> getAllProperties(String pid) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override
-	public PropertyDefinition describeProperty(PID propertyIdentifier) {
+	public PropertyDefinition describeProperty(String propertyIdentifier) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override
-	public TypeDefinition describeType(PID typeIdentifier) {
+	public TypeDefinition describeType(String typeIdentifier) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override
-	public boolean conformsToType(PID pid, PID typeIdentifier) {
+	public boolean conformsToType(String pid, String typeIdentifier) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}
 
 	@Override
-	public Object genericResolve(PID pid) throws IOException {
+	public Object genericResolve(String pid) throws IOException {
 		// ask identifier system whether this is a type registry record
 		boolean istypereg = identifierSystem.isTypeRegistryPID(pid);
 		if (istypereg) {
@@ -109,7 +108,7 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public boolean isTypeRegistryPID(PID pid) {
+	public boolean isTypeRegistryPID(String pid) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented yet");
 	}

@@ -1,17 +1,22 @@
 package rdapit.typeregistry.RDATypeRegistry;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import rdapit.pidsystem.PID;
-import rdapit.typeregistry.*;
+import rdapit.typeregistry.ITypeRegistry;
+import rdapit.typeregistry.PropertyDefinition;
+import rdapit.typeregistry.TypeDefinition;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RDATypeRegistry implements ITypeRegistry {
 
@@ -89,33 +94,38 @@ public class RDATypeRegistry implements ITypeRegistry {
     }
 
     @Override
-    public PropertyDefinition queryPropertyDefinition(PID propertyIdentifier) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public PropertyDefinition queryPropertyDefinition(String propertyIdentifier) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public List<PropertyDefinition> queryPropertyDefinitionByName(String propertyName) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void createPropertyDefinition(PropertyDefinition propertyDefinition) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void removePropertyDefinition(PID propertyIdentifier) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void removePropertyDefinition(String propertyIdentifier) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public TypeDefinition queryTypeDefinition(PID typeIdentifier) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public TypeDefinition queryTypeDefinition(String typeIdentifier) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void createTypeDefinition(PID typeIdentifier, TypeDefinition typeDefinition) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void createTypeDefinition(String typeIdentifier, TypeDefinition typeDefinition) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
+
+	@Override
+	public Object query(String identifier) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+	}
 
 }

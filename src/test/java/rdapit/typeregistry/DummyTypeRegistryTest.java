@@ -2,8 +2,6 @@ package rdapit.typeregistry;
 
 import org.junit.Before;
 
-import rdapit.pidsystem.PID;
-
 public class DummyTypeRegistryTest extends BasicTypeRegistryTest {
 
 	private DummyTypeRegistry typeRegistry;
@@ -19,8 +17,8 @@ public class DummyTypeRegistryTest extends BasicTypeRegistryTest {
 	}
 
 	@Override
-	protected PID constructTypePID(String identifierName) {
-		return new PID("DUMMY-" + identifierName);
+	protected String constructTypePID(String identifierName) {
+		return "DUMMY-" + identifierName;
 	}
 
 }

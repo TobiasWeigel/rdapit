@@ -3,8 +3,6 @@ package rdapit.typeregistry;
 import java.io.IOException;
 import java.util.List;
 
-import rdapit.pidsystem.PID;
-
 /**
  * Main abstraction interface towards the type registry. Contains all methods
  * required from the registry by the core services.
@@ -22,7 +20,7 @@ public interface ITypeRegistry {
 	 * @throws IOException
 	 *             on communication errors with a remote registry
 	 */
-	public PropertyDefinition queryPropertyDefinition(PID propertyIdentifier) throws IOException;
+	public PropertyDefinition queryPropertyDefinition(String propertyIdentifier) throws IOException;
 
 	/**
 	 * Retrieves a property definition by its property name. Note that the name
@@ -55,11 +53,11 @@ public interface ITypeRegistry {
 	 * @throws IOException
 	 *             on communication errors with a remote registry
 	 */
-	public void removePropertyDefinition(PID propertyIdentifier) throws IOException;
+	public void removePropertyDefinition(String propertyIdentifier) throws IOException;
 
-	public TypeDefinition queryTypeDefinition(PID typeIdentifier);
+	public TypeDefinition queryTypeDefinition(String typeIdentifier);
 
-	public void createTypeDefinition(PID typeIdentifier, TypeDefinition typeDefinition);
+	public void createTypeDefinition(String typeIdentifier, TypeDefinition typeDefinition);
 
 	/**
 	 * Generic query method. Requires no a priori knowledge about the kind of
@@ -69,6 +67,6 @@ public interface ITypeRegistry {
 	 * @return null if there is no object with given identifier, or an instance
 	 *         of PropertyDefinition or TypeDefinition.
 	 */
-	public Object query(PID identifier);
+	public Object query(String identifier);
 
 }

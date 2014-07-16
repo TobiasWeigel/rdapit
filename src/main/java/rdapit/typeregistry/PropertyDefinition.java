@@ -1,25 +1,37 @@
 package rdapit.typeregistry;
 
-import rdapit.pidsystem.PID;
-
 /**
  * Encapsulates a single property definition in the type registry.
  * 
  */
 public class PropertyDefinition {
-	
+
 	public static final String ELEMENTAL_VALUETYPE_STRING = "String";
 	public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "11043.4/pit.construct";
 
-	protected final PID identifier;
-	
+	/** a PID */
+	protected final String identifier;
+
 	protected final String name;
-	protected final PID range;
+
+	/** a PID */
+	protected final String range;
 	protected final String namespace;
-	
+
 	protected final String description;
-	
-	public PropertyDefinition(PID identifier, String name, PID range) {
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param identifier
+	 *            a PID
+	 * @param name
+	 *            some readable name (not a PID)
+	 * @param range
+	 *            a PID, i.e. the PID of the value type space of the property.
+	 *            This can also be an 'elemental type' identifier.
+	 */
+	public PropertyDefinition(String identifier, String name, String range) {
 		super();
 		this.identifier = identifier;
 		this.name = name;
@@ -27,9 +39,8 @@ public class PropertyDefinition {
 		this.namespace = "";
 		this.description = "";
 	}
-	
-	
-	public PropertyDefinition(PID identifier, String name, PID range, String namespace) {
+
+	public PropertyDefinition(String identifier, String name, String range, String namespace) {
 		super();
 		this.identifier = identifier;
 		this.name = name;
@@ -37,8 +48,8 @@ public class PropertyDefinition {
 		this.namespace = namespace;
 		this.description = "";
 	}
-	
-	public PropertyDefinition(PID identifier, String name, PID range, String namespace, String description) {
+
+	public PropertyDefinition(String identifier, String name, String range, String namespace, String description) {
 		super();
 		this.identifier = identifier;
 		this.name = name;
@@ -47,34 +58,33 @@ public class PropertyDefinition {
 		this.description = description;
 	}
 
-
-	public PID getIdentifier() {
+	public String getIdentifier() {
 		return identifier;
 	}
+
 	public String getName() {
 		return name;
 	}
-	public PID getValueType() {
+
+	public String getRange() {
 		return range;
 	}
+
 	public String getNamespace() {
 		return namespace;
 	}
 
 	/**
-	 * Verifies that the given value conforms to the property's type range.  
+	 * Verifies that the given value conforms to the property's type range.
 	 * 
-	 * @param value 
-	 * @return
-	 *   true or false
+	 * @param value
+	 * @return true or false
 	 */
 	public boolean generateProperty(Object value) {
-		if (range.getIdentifierName().equalsIgnoreCase(ELEMENTAL_VALUETYPE_STRING)) {
+		if (range.equalsIgnoreCase(ELEMENTAL_VALUETYPE_STRING)) {
 			return (value instanceof String);
-		}
-		else throw new IllegalStateException("Unknown elemental value type: "+range.getIdentifierName());
+		} else
+			throw new IllegalStateException("Unknown elemental value type: " + range);
 	}
-	
-	
-	
+
 }

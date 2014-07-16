@@ -21,7 +21,7 @@ public interface IIdentifierSystem {
 	 * @return True or false
 	 * @throws IOException
 	 */
-	public boolean isIdentifierRegistered(PID pid) throws IOException;
+	public boolean isIdentifierRegistered(String pid) throws IOException;
 
 	/**
 	 * Queries a single property from the given PID.
@@ -32,7 +32,7 @@ public interface IIdentifierSystem {
 	 *         defined in this PID record.
 	 * @throws IOException
 	 */
-	public String queryProperty(PID pid, PropertyDefinition propertyDefinition) throws IOException;
+	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException;
 
 	/**
 	 * Queries a single property from the given PID.
@@ -49,7 +49,7 @@ public interface IIdentifierSystem {
 	 *             if the given property name is not unique in the type registry
 	 *             or cannot be found.
 	 */
-	public String queryProperty(PID pid, String propertyName, ITypeRegistry typeRegistry) throws IOException;
+	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException;
 
 	/**
 	 * Registers a new PID with given property values. The method decides on a
@@ -62,7 +62,7 @@ public interface IIdentifierSystem {
 	 * @return the name of the registered PID
 	 * @throws IOException
 	 */
-	public PID registerPID(Map<String, String> properties) throws IOException;
+	public String registerPID(Map<String, String> properties) throws IOException;
 
 	/**
 	 * Queries all properties of a given type available from the given PID. If
@@ -77,9 +77,9 @@ public interface IIdentifierSystem {
 	 *         property values present in the record of the given PID.
 	 * @throws IOException
 	 */
-	public Map<String, String> queryByType(PID pid, TypeDefinition typeDefinition) throws IOException;
+	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException;
 
-	public Map<String, String> queryByType(PID pid, PID typeIdentifier, ITypeRegistry typeRegistry) throws IOException;
+	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException;
 
 	/**
 	 * Remove the given PID. Obviously, this method is only for testing
@@ -87,7 +87,7 @@ public interface IIdentifierSystem {
 	 * 
 	 * @param pid
 	 */
-	public void deletePID(PID pid);
+	public void deletePID(String pid);
 
 	/**
 	 * Determines whether the given PID is registered and a special identifier
@@ -99,6 +99,6 @@ public interface IIdentifierSystem {
 	 *         or registered but not an identifier for a TypeRegistry entry
 	 *         (i.e. a normal PID record).
 	 */
-	public boolean isTypeRegistryPID(PID pid);
+	public boolean isTypeRegistryPID(String pid);
 
 }

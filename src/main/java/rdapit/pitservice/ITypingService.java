@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import rdapit.pidsystem.IIdentifierSystem;
-import rdapit.pidsystem.PID;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
 
@@ -23,13 +22,13 @@ public interface ITypingService extends IIdentifierSystem {
 	 * @return null if the pid is not registered or a Map<String, String> from
 	 *         property identifiers (not names!) to values.
 	 */
-	public Map<String, String> getAllProperties(PID pid);
+	public Map<String, String> getAllProperties(String pid);
 
-	public PropertyDefinition describeProperty(PID propertyIdentifier);
+	public PropertyDefinition describeProperty(String propertyIdentifier);
 
-	public TypeDefinition describeType(PID typeIdentifier);
+	public TypeDefinition describeType(String typeIdentifier);
 
-	public boolean conformsToType(PID pid, PID typeIdentifier);
+	public boolean conformsToType(String pid, String typeIdentifier);
 
 	/**
 	 * Resolves the given PID without previous knowledge about the kind of
@@ -42,6 +41,6 @@ public interface ITypingService extends IIdentifierSystem {
 	 *         the PID is not registered at all.
 	 * @throws IOException
 	 */
-	public Object genericResolve(PID pid) throws IOException;
+	public Object genericResolve(String pid) throws IOException;
 
 }
