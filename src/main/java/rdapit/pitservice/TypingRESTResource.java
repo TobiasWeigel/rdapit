@@ -1,6 +1,7 @@
 package rdapit.pitservice;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -28,13 +29,24 @@ public class TypingRESTResource {
 	}
 
 	@GET
-	@Path("/{identifier}")
+	@Path("/generic/{identifier}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response resolvePID(@PathParam("identifier") String identifier) throws IOException {
+	public Response resolveGenericPID(@PathParam("identifier") String identifier) throws IOException {
 		Object obj = typingService.genericResolve(new PID(identifier));
 		if (obj == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(obj).build();
 	}
+	
+	@GET
+	@Path("/pid/{identifier}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response resolvePID(@PathParam("identifier") String identifier) throws IOException {
+		Map<String, String> result = typingService.getAllProperties(new PID(identifier));
+		if (result == null)
+			return Response.status(404).build();
+		return Response.status(200).entity(result).build();
+	}
+	
 
 }
