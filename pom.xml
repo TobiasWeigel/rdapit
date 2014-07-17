@@ -2,7 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>rdapit</groupId>
   <artifactId>rdapit</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1</version>
+  <packaging>war</packaging>
+  <name>rdapit</name>
 
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -15,6 +17,48 @@
           <target>1.7</target>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+          <webXml>websss.xml</webXml>
+        </configuration>
+      </plugin> 
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.3</version>
+        
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+        
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/onejar.xml</descriptor>
+          </descriptors>
+          <archive>
+            <manifest>
+              <mainClass>de.dkrz.infra.pid.handle.rest.Main</mainClass>
+              <packageName>de.dkrz.infra.pid.handle.rest</packageName>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      
     </plugins>
   </build>
 
@@ -38,6 +82,11 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
