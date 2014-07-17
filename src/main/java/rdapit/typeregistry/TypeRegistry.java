@@ -21,15 +21,15 @@ public class TypeRegistry implements ITypeRegistry {
 	protected WebTarget rootTarget;
 	protected WebTarget searchTarget;
 	protected WebTarget idTarget;
-	
+
 	public class TypeRegistryException extends IOException {
-		
+
 		private static final long serialVersionUID = -7068361753427579466L;
 
 		public TypeRegistryException(JsonNode rootNode) {
-			super("Error querying the type registry: "+rootNode.get("msg")+" (code: "+rootNode.get("code")+")");
+			super("Error querying the type registry: " + rootNode.get("msg") + " (code: " + rootNode.get("code") + ")");
 		}
-		
+
 	}
 
 	public TypeRegistry(String baseURI) {
@@ -45,13 +45,18 @@ public class TypeRegistry implements ITypeRegistry {
 		String response = idTarget.resolveTemplate("id", propertyIdentifier).request(MediaType.APPLICATION_JSON).get(String.class);
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = mapper.readTree(response);
-		if (rootNode.get("code").asInt() != 200) throw new TypeRegistryException(rootNode);
+		if (rootNode.get("code").asInt() != 200)
+			throw new TypeRegistryException(rootNode);
 		JsonNode entry = rootNode.get("extras").get("data");
 		String propName = "";
 		String valuetype = "";
-		for (JsonNode entryKV: entry.get("key_value")) {
-			if (entryKV.get("key").asText().equalsIgnoreCase("name")) propName = entryKV.get("val").asText();
-			else if (entryKV.get("key").asText().equalsIgnoreCase("type")) valuetype = entryKV.get("val").asText();
+		if (entry.has("key_value")) {
+			for (JsonNode entryKV : entry.get("key_value")) {
+				if (entryKV.get("key").asText().equalsIgnoreCase("name"))
+					propName = entryKV.get("val").asText();
+				else if (entryKV.get("key").asText().equalsIgnoreCase("range"))
+					valuetype = entryKV.get("val").asText();
+			}
 		}
 		PropertyDefinition result = new PropertyDefinition(entry.get("ID").asText(), propName, valuetype);
 		return result;
@@ -63,19 +68,26 @@ public class TypeRegistry implements ITypeRegistry {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = mapper.readTree(response);
 		List<PropertyDefinition> results = new ArrayList<PropertyDefinition>();
-		if (rootNode.get("code").asInt() != 200) throw new TypeRegistryException(rootNode);
-		for (JsonNode entry: rootNode.get("extras").get("data")) {
-			if (!entry.get("model").asText().equals("DataType")) continue;
-			// crawl through the key_value list of this type record to find the 'name' and 'type' of the property
+		if (rootNode.get("code").asInt() != 200)
+			throw new TypeRegistryException(rootNode);
+		for (JsonNode entry : rootNode.get("extras").get("data")) {
+			if (!entry.get("model").asText().equals("DataType"))
+				continue;
+			// crawl through the key_value list of this type record to find the
+			// 'name' and 'type' of the property
 			String valuetype = "";
 			String propertyNameFromRecord = "";
-			for (JsonNode entryKV: entry.get("key_value")) {
-				if (entryKV.get("key").asText().equalsIgnoreCase("name") && entryKV.get("val").asText().equalsIgnoreCase(propertyName))
-					propertyNameFromRecord = entryKV.get("val").asText();
-				else if (entryKV.get("key").asText().equalsIgnoreCase("type")) valuetype = entryKV.get("val").asText();
+			if (entry.has("key_value")) {
+				for (JsonNode entryKV : entry.get("key_value")) {
+					if (entryKV.get("key").asText().equalsIgnoreCase("name") && entryKV.get("val").asText().equalsIgnoreCase(propertyName))
+						propertyNameFromRecord = entryKV.get("val").asText();
+					else if (entryKV.get("key").asText().equalsIgnoreCase("range"))
+						valuetype = entryKV.get("val").asText();
+				}
 			}
 			if (!valuetype.isEmpty() && !propertyNameFromRecord.isEmpty()) {
-				// found both value type and original property name; add valid property definition to result list
+				// found both value type and original property name; add valid
+				// property definition to result list
 				results.add(new PropertyDefinition(entry.get("ID").asText(), propertyNameFromRecord, valuetype));
 			}
 		}

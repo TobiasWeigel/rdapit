@@ -10,25 +10,28 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import rdapit.pidsystem.IIdentifierSystem;
-import rdapit.typeregistry.ITypeRegistry;
-import rdapit.typeregistry.PropertyDefinition;
+import rdapit.pitservice.TypingService;
 
 @Path("/pitapi")
 public class TypingRESTResource {
 
-	protected ITypingService typingService;
-
-	public TypingRESTResource() throws IOException {
+	protected TypingService typingService;
+	
+	public TypingRESTResource() {
 		super();
-		// TODO: need to replace dummies with proper instances - where do we get their config info?
-		IIdentifierSystem identifierSystem = ApplicationContext.getInstance().getIdentifierSystem();
-		ITypeRegistry typeRegistry = ApplicationContext.getInstance().getTypeRegistry();
-		this.typingService = new TypingService(identifierSystem, typeRegistry);
+		this.typingService = ApplicationContext.getInstance().getTypingService();
+	}
+	
+	
+	@GET
+	@Path("/test")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String simpleTest() {
+		return "Hello World!";
 	}
 
 	@GET
-	@Path("generic/{identifier}")
+	@Path("/generic/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolveGenericPID(@PathParam("identifier") String identifier) throws IOException {
 		Object obj = typingService.genericResolve(identifier);
@@ -38,7 +41,7 @@ public class TypingRESTResource {
 	}
 	
 	@GET
-	@Path("pid/{identifier}")
+	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolvePID(@PathParam("identifier") String identifier) throws IOException {
 		Map<String, String> result = typingService.getAllProperties(identifier);
@@ -46,17 +49,28 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 		return Response.status(200).entity(result).build();
 	}
-	
+
 	@GET
-	@Path("property/{identifier}")
+	@Path("/property/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolveProperty(@PathParam("identifier") String identifier) throws IOException {
+		System.out.println("identifier: "+identifier);
+		return Response.status(200).entity(identifier).build();
+	}
+	
+	/*
+	@GET
+	@Path("/property")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response resolveProperty() throws IOException {
+		String identifier = "hhh";
+		System.out.println("Querying property "+identifier);
 		PropertyDefinition result = typingService.describeProperty(identifier);
 		if (result == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(result).build();
 		
-	}
+	} */
 	
 
 }

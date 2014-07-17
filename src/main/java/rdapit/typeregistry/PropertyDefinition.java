@@ -7,7 +7,12 @@ package rdapit.typeregistry;
 public class PropertyDefinition {
 
 	public static final String ELEMENTAL_VALUETYPE_STRING = "String";
-	public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "11043.4/pit.construct";
+	
+	/**
+	 * Marker value to distinguish type and profile records from each other.
+	 * Formerly known as "pit.construct".
+	 */
+	public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "11314.2/7c7100d34a44a9e5e643a5f0cfbfebb5"; 
 
 	/** a PID */
 	protected final String identifier;

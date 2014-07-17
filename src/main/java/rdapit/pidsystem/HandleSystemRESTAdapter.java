@@ -60,51 +60,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	}
 
-	@Override
-	public boolean isIdentifierRegistered(String pid) {
-		Response response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).head();
-		return response.getStatus() == 200;
-	}
-
-	@Override
-	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException {
-
-		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid).queryParam("type", propertyDefinition.getIdentifier())
-				.request(MediaType.APPLICATION_JSON).get(String.class);
-		// extract the Handle value data entry from the json response
-		JsonNode rootNode = objectMapper.readTree(pidResponse);
-		JsonNode values = rootNode.get("values");
-		if (!values.isArray())
-			throw new IllegalStateException("Invalid response format: values must be an array");
-		if (values.size() == 0)
-			return null;
-		if (values.size() > 1) {
-			// More than one property stored at this record
-			throw new IllegalStateException("PID records with more than one property of same type are not supported yet");
-		}
-		String value = values.get(0).get("data").get("value").asText();
-		return value;
-
-	}
-
-	@Override
-	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
-		// Retrieve property definition given the name
-		List<PropertyDefinition> propertyDefinitions = typeRegistry.queryPropertyDefinitionByName(propertyName);
-		if (propertyDefinitions.size() > 1) {
-			throw new IllegalArgumentException("The given property name '" + propertyName + "' is not unique in the type registry");
-		} else if (propertyDefinitions.isEmpty()) {
-			throw new IllegalArgumentException("The given property name '" + propertyName + "' cannot be found in the type registry");
-		}
-		// Forward to other method
-		return queryProperty(pid, propertyDefinitions.get(0));
-	}
-
-	public PIDRecord queryPIDRecord(String pid) throws JsonParseException, JsonMappingException, IOException {
-		String response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get(String.class);
-		return PIDRecord.fromJson(response);
-	}
-
 	protected URI baseURI;
 	protected String authInfo;
 	protected Client client;
@@ -170,6 +125,52 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	}
 
+
+	@Override
+	public boolean isIdentifierRegistered(String pid) {
+		Response response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).head();
+		return response.getStatus() == 200;
+	}
+
+	@Override
+	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException {
+
+		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid).queryParam("type", propertyDefinition.getIdentifier())
+				.request(MediaType.APPLICATION_JSON).get(String.class);
+		// extract the Handle value data entry from the json response
+		JsonNode rootNode = objectMapper.readTree(pidResponse);
+		JsonNode values = rootNode.get("values");
+		if (!values.isArray())
+			throw new IllegalStateException("Invalid response format: values must be an array");
+		if (values.size() == 0)
+			return null;
+		if (values.size() > 1) {
+			// More than one property stored at this record
+			throw new IllegalStateException("PID records with more than one property of same type are not supported yet");
+		}
+		String value = values.get(0).get("data").get("value").asText();
+		return value;
+
+	}
+
+	@Override
+	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
+		// Retrieve property definition given the name
+		List<PropertyDefinition> propertyDefinitions = typeRegistry.queryPropertyDefinitionByName(propertyName);
+		if (propertyDefinitions.size() > 1) {
+			throw new IllegalArgumentException("The given property name '" + propertyName + "' is not unique in the type registry");
+		} else if (propertyDefinitions.isEmpty()) {
+			throw new IllegalArgumentException("The given property name '" + propertyName + "' cannot be found in the type registry");
+		}
+		// Forward to other method
+		return queryProperty(pid, propertyDefinitions.get(0));
+	}
+
+	public PIDRecord queryPIDRecord(String pid) throws JsonParseException, JsonMappingException, IOException {
+		String response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get(String.class);
+		return PIDRecord.fromJson(response);
+	}
+	
 	protected String generatePIDName() {
 		String uuid = UUID.randomUUID().toString();
 		return this.generatorPrefix + "/" + uuid;

@@ -2,46 +2,30 @@ package rdapit.pitservice;
 
 import org.apache.log4j.Logger;
 
-import rdapit.pidsystem.IIdentifierSystem;
-import rdapit.typeregistry.ITypeRegistry;
-
 /**
- * Singleton.
+ * Singleton. Holds information persistent throughout the life time of the server. 
  */
 public class ApplicationContext {
 
 	public static ApplicationContext instance;
-	private IIdentifierSystem identifierSystem;
-	private ITypeRegistry typeRegistry;
+	
+	private TypingService typingService;
 
 	private static final Logger logger = Logger.getLogger(ApplicationContext.class);
 
-	private ApplicationContext() {
+	public ApplicationContext(TypingService typingService) {
 		instance = this;
-		// TODO: create instances of identifier system and type registry
-	}
-
-	public ApplicationContext(IIdentifierSystem identifierSystem, ITypeRegistry typeRegistry) {
-		instance = this;
-		this.typeRegistry = typeRegistry;
-		this.identifierSystem = identifierSystem;
+		this.typingService = typingService;
 	}
 
 	public static ApplicationContext getInstance() {
 		if (ApplicationContext.instance == null)
-			try {
-				return new ApplicationContext();
-			} catch (Exception exc) {
-				logger.error(exc.getMessage(), exc);
-			}
+			throw new IllegalStateException("Singleton not initialized!");
 		return instance;
 	}
 	
-	public IIdentifierSystem getIdentifierSystem() {
-		return identifierSystem;
+	public TypingService getTypingService() {
+		return typingService;
 	}
 	
-	public ITypeRegistry getTypeRegistry() {
-		return typeRegistry;
-	}
 }
