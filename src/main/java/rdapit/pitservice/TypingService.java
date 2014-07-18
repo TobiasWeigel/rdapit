@@ -58,9 +58,8 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public TypeDefinition describeType(String typeIdentifier) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
+	public TypeDefinition describeType(String typeIdentifier) throws IOException {
+		return typeRegistry.queryTypeDefinition(typeIdentifier);
 	}
 
 	@Override

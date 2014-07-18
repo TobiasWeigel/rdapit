@@ -30,8 +30,9 @@ public interface ITypingService extends IIdentifierSystem {
 	 * @param typeIdentifier
 	 * @return null if there is no type with given identifier, the definition
 	 *         record otherwise.
+	 * @throws IOException 
 	 */
-	public TypeDefinition describeType(String typeIdentifier);
+	public TypeDefinition describeType(String typeIdentifier) throws IOException;
 
 	public boolean conformsToType(String pid, String typeIdentifier);
 

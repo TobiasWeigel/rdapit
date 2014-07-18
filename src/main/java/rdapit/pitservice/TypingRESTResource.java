@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import rdapit.typeregistry.PropertyDefinition;
+import rdapit.typeregistry.TypeDefinition;
 
 @Path("/pitapi")
 public class TypingRESTResource {
@@ -86,6 +87,16 @@ public class TypingRESTResource {
 		if (propDef == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(propDef).build();
+	}
+
+	@GET
+	@Path("/type/{identifier}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response resolveType(@PathParam("identifier") String identifier) throws IOException {
+		TypeDefinition typeDef = typingService.describeType(identifier);
+		if (typeDef == null)
+			return Response.status(404).build();
+		return Response.status(200).entity(typeDef).build();
 	}
 
 }
