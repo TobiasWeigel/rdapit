@@ -46,23 +46,6 @@ public interface IIdentifierSystem {
 	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException;
 
 	/**
-	 * Queries a single property from the given PID.
-	 * 
-	 * @param pid
-	 * @param propertyName
-	 * @param typeRegistry
-	 *            required to map from the property name to a proper property
-	 *            definition
-	 * @return the property value or null if there is no property of given name
-	 *         defined in this PID record.
-	 * @throws IOException
-	 * @throws IllegalArgumentException
-	 *             if the given property name is not unique in the type registry
-	 *             or cannot be found.
-	 */
-	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException;
-
-	/**
 	 * Registers a new PID with given property values. The method decides on a
 	 * PID name automatically, guaranteeing its uniqueness and preventing
 	 * failure due to potential overwrites.

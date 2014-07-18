@@ -1,6 +1,7 @@
 package rdapit.pitservice;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import rdapit.pidsystem.IIdentifierSystem;
@@ -34,11 +35,6 @@ public class TypingService implements ITypingService {
 	@Override
 	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException {
 		return identifierSystem.queryProperty(pid, propertyDefinition);
-	}
-
-	@Override
-	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
-		return identifierSystem.queryProperty(pid, propertyName, typeRegistry);
 	}
 
 	@Override
@@ -109,6 +105,24 @@ public class TypingService implements ITypingService {
 	@Override
 	public Map<String, String> queryAllProperties(String pid) throws IOException {
 		return identifierSystem.queryAllProperties(pid);
+	}
+
+	@Override
+	public String queryProperty(String pid, String propertyNameOrID) throws IOException {
+		// check type registry if this is a property identifier
+		PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyNameOrID);
+		if (propDef != null) {
+			return identifierSystem.queryProperty(pid, propDef);
+		}
+		// this then may be a property name - so we search for it
+		List<PropertyDefinition> propDefs = typeRegistry.queryPropertyDefinitionByName(propertyNameOrID);
+		if (propDefs.isEmpty())
+			return null;
+		else {
+			if (propDefs.size() > 1)
+				throw new IllegalArgumentException("The given property name '" + propertyNameOrID + "' is not unique in the type registry!");
+			return identifierSystem.queryProperty(pid, propDefs.get(0));
+		}
 	}
 
 }

@@ -18,8 +18,9 @@ public interface ITypingService extends IIdentifierSystem {
 	 * Retrieves a property definition
 	 * 
 	 * @param propertyIdentifier
-	 * @return null if there is no property with given identifier, the definition record otherwise.
-	 * @throws IOException 
+	 * @return null if there is no property with given identifier, the
+	 *         definition record otherwise.
+	 * @throws IOException
 	 */
 	public PropertyDefinition describeProperty(String propertyIdentifier) throws IOException;
 
@@ -27,7 +28,8 @@ public interface ITypingService extends IIdentifierSystem {
 	 * Retrieves a type definition
 	 * 
 	 * @param typeIdentifier
-	 * @return null if there is no type with given identifier, the definition record otherwise.
+	 * @return null if there is no type with given identifier, the definition
+	 *         record otherwise.
 	 */
 	public TypeDefinition describeType(String typeIdentifier);
 
@@ -45,5 +47,17 @@ public interface ITypingService extends IIdentifierSystem {
 	 * @throws IOException
 	 */
 	public Object genericResolve(String pid) throws IOException;
+
+	/**
+	 * Queries a single property from the PID.
+	 * 
+	 * @param pid
+	 * @param propertyNameOrID
+	 *            the method will decide whether the given String is a unique
+	 *            identifier or a (potentially ambiguous) name.
+	 * @return a String or null if the property is undefined.
+	 * @throws IOException 
+	 */
+	public String queryProperty(String pid, String propertyNameOrID) throws IOException;
 
 }

@@ -22,16 +22,6 @@ public class TypeRegistry implements ITypeRegistry {
 	protected WebTarget searchTarget;
 	protected WebTarget idTarget;
 
-	public class TypeRegistryException extends IOException {
-
-		private static final long serialVersionUID = -7068361753427579466L;
-
-		public TypeRegistryException(JsonNode rootNode) {
-			super("Error querying the type registry: " + rootNode.get("msg") + " (code: " + rootNode.get("code") + ")");
-		}
-
-	}
-
 	public TypeRegistry(String baseURI) {
 		this.baseURI = UriBuilder.fromUri(baseURI).build();
 		client = ClientBuilder.newBuilder().build();
@@ -46,7 +36,7 @@ public class TypeRegistry implements ITypeRegistry {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode rootNode = mapper.readTree(response);
 		if (rootNode.get("code").asInt() != 200)
-			throw new TypeRegistryException(rootNode);
+			return null;
 		JsonNode entry = rootNode.get("extras").get("data");
 		String propName = "";
 		String valuetype = "";
@@ -69,7 +59,7 @@ public class TypeRegistry implements ITypeRegistry {
 		JsonNode rootNode = mapper.readTree(response);
 		List<PropertyDefinition> results = new ArrayList<PropertyDefinition>();
 		if (rootNode.get("code").asInt() != 200)
-			throw new TypeRegistryException(rootNode);
+			return results;
 		for (JsonNode entry : rootNode.get("extras").get("data")) {
 			if (!entry.get("model").asText().equals("DataType"))
 				continue;

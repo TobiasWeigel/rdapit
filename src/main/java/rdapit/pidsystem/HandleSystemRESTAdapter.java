@@ -105,26 +105,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		this.individualHandleTarget = handlesTarget.path("{handle}");
 	}
 
-	public static void main(String[] args) throws Exception {
-		// test read from registry and HS adapter
-		TypeRegistry typeRegistry = new TypeRegistry("http://typeregistry.org/registrar");
-		PropertyDefinition propertyDef = typeRegistry.queryPropertyDefinition("11314.2/07841c3f84cbe0d4ff8687d0028c2622");
-		System.out.println(propertyDef.getIdentifier() + ": " + propertyDef.getName() + ", value type: " + propertyDef.getRange());
-		HandleSystemRESTAdapter hsra = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
-		boolean b = hsra.isIdentifierRegistered("11043.4/weigel_TEST1");
-		System.out.println(b);
-		String pidr = hsra.queryProperty("11043.4/WEIGEL_TEST2", propertyDef);
-		System.out.println(propertyDef.getName() + ": " + propertyDef.getRange() + ": " + pidr);
-		pidr = hsra.queryProperty("11043.4/WEIGEL_TEST2", "Title", typeRegistry);
-		System.out.println("Title: " + pidr);
-		// test create PID
-		HashMap<String, String> propMap = new HashMap<String, String>();
-		propMap.put("author", "John D.");
-		String pid = hsra.registerPID(propMap);
-		System.out.println("New PID registered: " + pid);
-
-	}
-
 	@Override
 	public boolean isIdentifierRegistered(String pid) {
 		Response response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).head();
@@ -149,19 +129,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		String value = values.get(0).get("data").get("value").asText();
 		return value;
 
-	}
-
-	@Override
-	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
-		// Retrieve property definition given the name
-		List<PropertyDefinition> propertyDefinitions = typeRegistry.queryPropertyDefinitionByName(propertyName);
-		if (propertyDefinitions.size() > 1) {
-			throw new IllegalArgumentException("The given property name '" + propertyName + "' is not unique in the type registry");
-		} else if (propertyDefinitions.isEmpty()) {
-			throw new IllegalArgumentException("The given property name '" + propertyName + "' cannot be found in the type registry");
-		}
-		// Forward to other method
-		return queryProperty(pid, propertyDefinitions.get(0));
 	}
 
 	protected String generatePIDName() {

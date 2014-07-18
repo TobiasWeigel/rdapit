@@ -3,11 +3,13 @@ package rdapit.pitservice;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -17,13 +19,12 @@ import rdapit.typeregistry.PropertyDefinition;
 public class TypingRESTResource {
 
 	protected TypingService typingService;
-	
+
 	public TypingRESTResource() {
 		super();
 		this.typingService = ApplicationContext.getInstance().getTypingService();
 	}
-	
-	
+
 	@GET
 	@Path("/test")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -40,23 +41,35 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 		return Response.status(200).entity(obj).build();
 	}
-	
+
 	@HEAD
 	@Path("/pid/{identifier}")
 	public Response isPidRegistered(@PathParam("identifier") String identifier) throws IOException {
 		boolean b = typingService.isIdentifierRegistered(identifier);
-		if (b) return Response.status(200).build();
-		else return Response.status(404).build();
+		if (b)
+			return Response.status(200).build();
+		else
+			return Response.status(404).build();
 	}
-	
+
 	@GET
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resolvePID(@PathParam("identifier") String identifier) throws IOException {
-		Map<String, String> result = typingService.queryAllProperties(identifier);
-		if (result == null)
-			return Response.status(404).build();
-		return Response.status(200).entity(result).build();
+	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("property") @DefaultValue("") String propertyNameOrID)
+			throws IOException {
+		if (propertyNameOrID.isEmpty()) {
+			// No filtering - return all properties
+			Map<String, String> result = typingService.queryAllProperties(identifier);
+			if (result == null)
+				return Response.status(404).build();
+			return Response.status(200).entity(result).build();
+		} else {
+			// Filter by property name or ID
+			String result = typingService.queryProperty(identifier, propertyNameOrID);
+			if (result == null)
+				return Response.status(404).build();
+			return Response.status(200).entity(result).build();
+		}
 	}
 
 	@GET
@@ -68,6 +81,5 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 		return Response.status(200).entity(propDef).build();
 	}
-	
 
 }

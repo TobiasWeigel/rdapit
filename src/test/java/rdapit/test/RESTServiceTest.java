@@ -21,11 +21,13 @@ public class RESTServiceTest extends JerseyTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSimpleResolve() {
+	public void testResolve() {
+		/* Prepare targets */
 		URI baseURI = UriBuilder.fromUri(this.getBaseUri()).build();
 		WebTarget rootTarget = client().target(baseURI).path("pitapi");
 		WebTarget pidResolveTarget = rootTarget.path("pid").path("{id}");
 		WebTarget propertyResolveTarget = rootTarget.path("property").path("{id}");
+		/* Simple tests */
 		Response resp = rootTarget.path("test").request().get();
 		assertEquals(200, resp.getStatus());
 		// Some postings indicate that Tomcat may have a problem with encoded
@@ -38,10 +40,14 @@ public class RESTServiceTest extends JerseyTest {
 		assertEquals("pit.construct", propDef.getName());
 		assertEquals(200, pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().head().getStatus());
 		assertEquals(404, pidResolveTarget.resolveTemplate("id", "invalid_or_unknown_identifier").request().head().getStatus());
+		/* Query full record */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
 		Map<String, String> pidrec = resp.readEntity(new HashMap<String, String>().getClass());
 		assertEquals("http://www.example.com", pidrec.get("URL"));
+		/* Query single property (by property name) */
+		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("property", "URL").request().get();
+		assertEquals(404, resp.getStatus()); // will return a 404 because URL is not a registered property..
 	}
 
 	@Override

@@ -30,16 +30,6 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	}
 
 	@Override
-	public String queryProperty(String pid, String propertyName, ITypeRegistry typeRegistry) throws IOException {
-		List<PropertyDefinition> l = typeRegistry.queryPropertyDefinitionByName(propertyName);
-		if (l.size() > 1)
-			throw new IllegalArgumentException("Property name not unique - arbitration not supported");
-		if (l.isEmpty())
-			throw new IllegalArgumentException("Property with given name '" + propertyName + "' not found.");
-		return queryProperty(pid, l.get(0));
-	}
-
-	@Override
 	public String registerPID(Map<String, String> properties) throws IOException {
 		String p = UUID.randomUUID().toString();
 		storage.put(p, new HashMap<>(properties));
