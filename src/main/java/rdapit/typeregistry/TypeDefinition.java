@@ -19,7 +19,7 @@ public class TypeDefinition {
 	/**
 	 * Value (boolean) True means mandatory, False means optional.
 	 */
-	protected HashMap<PropertyDefinition, PropertyDefinitionParameters> properties;
+	protected HashMap<String, PropertyDefinitionParameters> properties;
 
 	protected String name;
 	protected String description;
@@ -28,26 +28,26 @@ public class TypeDefinition {
 		this.identifier = identifier;
 		this.name = name;
 		this.description = description;
-		this.properties = new HashMap<PropertyDefinition, PropertyDefinitionParameters>();
+		this.properties = new HashMap<String, PropertyDefinitionParameters>();
 	}
 
-	public void addProperty(PropertyDefinition propertyDefinition, boolean mandatory) {
-		properties.put(propertyDefinition, new PropertyDefinitionParameters(mandatory));
+	public void addProperty(String propertyIdentifier, boolean mandatory) {
+		properties.put(propertyIdentifier, new PropertyDefinitionParameters(mandatory));
 	}
 
 	/**
-	 * Returns a set of all property definitions. The caller will not be able to
+	 * Returns a set of all properties. The caller will not be able to
 	 * distinguish between mandatory and optional properties.
 	 * 
-	 * @return a set of property definitions
+	 * @return a set of property identifiers (strings)
 	 */
-	public Set<PropertyDefinition> getAllProperties() {
-		return new HashSet<PropertyDefinition>(properties.keySet());
+	public Set<String> getAllProperties() {
+		return new HashSet<String>(properties.keySet());
 	}
 
-	private Set<PropertyDefinition> getProperties(boolean mandatory) {
-		Set<PropertyDefinition> result = new HashSet<>();
-		for (PropertyDefinition pd : properties.keySet()) {
+	private Set<String> getProperties(boolean mandatory) {
+		Set<String> result = new HashSet<>();
+		for (String pd : properties.keySet()) {
 			if (properties.get(pd).isMandatory() == mandatory)
 				result.add(pd);
 		}
@@ -55,20 +55,20 @@ public class TypeDefinition {
 	}
 
 	/**
-	 * Returns a set of all mandatory property definitions.
+	 * Returns a set of all mandatory properties.
 	 * 
-	 * @return a set of property definitions
+	 * @return a set of properties
 	 */
-	public Set<PropertyDefinition> getMandatoryProperties() {
+	public Set<String> getMandatoryProperties() {
 		return getProperties(true);
 	}
 
 	/**
-	 * Returns a set of all optional property definitions.
+	 * Returns a set of all optional properties.
 	 * 
-	 * @return a set of property definitions
+	 * @return a set of properties
 	 */
-	public Set<PropertyDefinition> getOptionalProperties() {
+	public Set<String> getOptionalProperties() {
 		return getProperties(false);
 	}
 

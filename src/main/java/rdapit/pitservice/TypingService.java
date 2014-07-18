@@ -48,11 +48,6 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
-		return identifierSystem.queryByType(pid, typeIdentifier, typeRegistry);
-	}
-
-	@Override
 	public void deletePID(String pid) {
 		identifierSystem.deletePID(pid);
 	}
@@ -123,6 +118,17 @@ public class TypingService implements ITypingService {
 				throw new IllegalArgumentException("The given property name '" + propertyNameOrID + "' is not unique in the type registry!");
 			return identifierSystem.queryProperty(pid, propDefs.get(0));
 		}
+	}
+
+	@Override
+	public Map<String, String> queryByType(String pid, String typeIdentifier) throws IOException {
+		TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
+		if (typeDef == null) 
+			return null;
+		// now query PID record
+		Map<String, String> result = identifierSystem.queryByType(pid, typeDef);
+		return result;
+		
 	}
 
 }

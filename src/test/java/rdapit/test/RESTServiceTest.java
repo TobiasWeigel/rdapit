@@ -48,6 +48,8 @@ public class RESTServiceTest extends JerseyTest {
 		/* Query single property (by property name) */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("property", "URL").request().get();
 		assertEquals(404, resp.getStatus()); // will return a 404 because URL is not a registered property..
+		/* Query property by type */
+		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("type", "11043.4/test_type").request().get();
 	}
 
 	@Override

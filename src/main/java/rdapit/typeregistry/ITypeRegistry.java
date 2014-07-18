@@ -55,7 +55,15 @@ public interface ITypeRegistry {
 	 */
 	public void removePropertyDefinition(String propertyIdentifier) throws IOException;
 
-	public TypeDefinition queryTypeDefinition(String typeIdentifier);
+	/**
+	 * Queries a type definition record from the type registry.
+	 * 
+	 * @param typeIdentifier
+	 * @return a type definition record or null if the type is not registered.
+	 * @throws IOException
+	 *             on communication errors with a remote registry
+	 */
+	public TypeDefinition queryTypeDefinition(String typeIdentifier) throws IOException;
 
 	public void createTypeDefinition(String typeIdentifier, TypeDefinition typeDefinition);
 

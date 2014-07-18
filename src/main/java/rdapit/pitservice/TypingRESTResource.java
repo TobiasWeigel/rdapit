@@ -55,8 +55,14 @@ public class TypingRESTResource {
 	@GET
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("property") @DefaultValue("") String propertyNameOrID)
+	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("property") @DefaultValue("") String propertyNameOrID, @QueryParam("type") @DefaultValue("") String typeIdentifier)
 			throws IOException {
+		if (!typeIdentifier.isEmpty()) {
+			// Filter by type ID
+			if (!propertyNameOrID.isEmpty())
+				return Response.status(400).entity("Filtering by both type and property is not supported!").build();
+			typingService.queryByType(identifier, typeIdentifier);
+		}
 		if (propertyNameOrID.isEmpty()) {
 			// No filtering - return all properties
 			Map<String, String> result = typingService.queryAllProperties(identifier);

@@ -40,18 +40,12 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
 		Map<String, String> map = storage.get(pid);
 		Map<String, String> result = new HashMap<>();
-		for (PropertyDefinition pd : typeDefinition.getAllProperties()) {
-			String s = map.get(pd.getIdentifier());
+		for (String propID : typeDefinition.getAllProperties()) {
+			String s = map.get(propID);
 			if (s != null)
-				result.put(pd.getIdentifier(), s);
+				result.put(propID, s);
 		}
 		return result;
-	}
-
-	@Override
-	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

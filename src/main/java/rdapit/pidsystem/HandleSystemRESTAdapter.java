@@ -8,7 +8,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,13 +27,9 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.internal.util.Base64;
 
-import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
-import rdapit.typeregistry.TypeRegistry;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -158,12 +153,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	@Override
 	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
-	}
-
-	@Override
-	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented");
 	}

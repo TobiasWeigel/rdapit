@@ -75,8 +75,6 @@ public interface IIdentifierSystem {
 	 */
 	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException;
 
-	public Map<String, String> queryByType(String pid, String typeIdentifier, ITypeRegistry typeRegistry) throws IOException;
-
 	/**
 	 * Remove the given PID. Obviously, this method is only for testing
 	 * purposes, since we should not delete persistent identifiers...
