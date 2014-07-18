@@ -26,8 +26,11 @@ public class RESTServiceTest extends JerseyTest {
 		assertEquals(200, resp.getStatus());
 		// Some postings indicate that Tomcat may have a problem with encoded slashes.
 		// There's a solution however: in setenv include
-		// CATALINA_OPTS="-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true" 
-		assertEquals(200, propertyResolveTarget.resolveTemplate("id", PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY).request().get().getStatus());
+		// CATALINA_OPTS="-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
+		resp = propertyResolveTarget.resolveTemplate("id", PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY).request().get();
+		assertEquals(200, resp.getStatus());
+		PropertyDefinition propDef = resp.readEntity(PropertyDefinition.class);
+		assertEquals("pit.construct", propDef.getName());
 	}
 	
 	@Override
@@ -39,7 +42,5 @@ public class RESTServiceTest extends JerseyTest {
 		}
 	} 
 
-/*	@Override
-	protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
-	} */
+
 }

@@ -1,5 +1,8 @@
 package rdapit.typeregistry;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Encapsulates a single property definition in the type registry.
  * 
@@ -15,14 +18,20 @@ public class PropertyDefinition {
 	public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "11314.2/7c7100d34a44a9e5e643a5f0cfbfebb5"; 
 
 	/** a PID */
+	@JsonProperty
 	protected final String identifier;
 
+	@JsonProperty
 	protected final String name;
 
 	/** a PID */
+	@JsonProperty
 	protected final String range;
+	
+	@JsonProperty
 	protected final String namespace;
 
+	@JsonProperty
 	protected final String description;
 
 	/**
@@ -54,7 +63,8 @@ public class PropertyDefinition {
 		this.description = "";
 	}
 
-	public PropertyDefinition(String identifier, String name, String range, String namespace, String description) {
+	@JsonCreator
+	public PropertyDefinition(@JsonProperty("identifier") String identifier, @JsonProperty("name") String name, @JsonProperty("range") String range, @JsonProperty("namespace") String namespace, @JsonProperty("description") String description) {
 		super();
 		this.identifier = identifier;
 		this.name = name;
@@ -78,6 +88,10 @@ public class PropertyDefinition {
 	public String getNamespace() {
 		return namespace;
 	}
+	
+	public String getDescription() {
+		return description;
+	}
 
 	/**
 	 * Verifies that the given value conforms to the property's type range.
@@ -90,6 +104,11 @@ public class PropertyDefinition {
 			return (value instanceof String);
 		} else
 			throw new IllegalStateException("Unknown elemental value type: " + range);
+	}
+	
+	@Override
+	public String toString() {
+		return identifier+": Property '"+name+"', range "+range; 
 	}
 
 }

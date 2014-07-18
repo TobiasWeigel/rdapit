@@ -29,8 +29,9 @@ public interface ITypingService extends IIdentifierSystem {
 	 * 
 	 * @param propertyIdentifier
 	 * @return null if there is no property with given identifier, the definition record otherwise.
+	 * @throws IOException 
 	 */
-	public PropertyDefinition describeProperty(String propertyIdentifier);
+	public PropertyDefinition describeProperty(String propertyIdentifier) throws IOException;
 
 	/**
 	 * Retrieves a type definition

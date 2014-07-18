@@ -68,9 +68,8 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public PropertyDefinition describeProperty(String propertyIdentifier) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
+	public PropertyDefinition describeProperty(String propertyIdentifier) throws IOException {
+		return typeRegistry.queryPropertyDefinition(propertyIdentifier);
 	}
 
 	@Override

@@ -10,7 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import rdapit.pitservice.TypingService;
+import rdapit.typeregistry.PropertyDefinition;
 
 @Path("/pitapi")
 public class TypingRESTResource {
@@ -54,23 +54,11 @@ public class TypingRESTResource {
 	@Path("/property/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolveProperty(@PathParam("identifier") String identifier) throws IOException {
-		System.out.println("identifier: "+identifier);
-		return Response.status(200).entity(identifier).build();
-	}
-	
-	/*
-	@GET
-	@Path("/property")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response resolveProperty() throws IOException {
-		String identifier = "hhh";
-		System.out.println("Querying property "+identifier);
-		PropertyDefinition result = typingService.describeProperty(identifier);
-		if (result == null)
+		PropertyDefinition propDef = typingService.describeProperty(identifier);
+		if (propDef == null)
 			return Response.status(404).build();
-		return Response.status(200).entity(result).build();
-		
-	} */
+		return Response.status(200).entity(propDef).build();
+	}
 	
 
 }
