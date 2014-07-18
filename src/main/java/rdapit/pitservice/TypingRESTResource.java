@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -38,6 +39,14 @@ public class TypingRESTResource {
 		if (obj == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(obj).build();
+	}
+	
+	@HEAD
+	@Path("/pid/{identifier}")
+	public Response isPidRegistered(@PathParam("identifier") String identifier) throws IOException {
+		boolean b = typingService.isIdentifierRegistered(identifier);
+		if (b) return Response.status(200).build();
+		else return Response.status(404).build();
 	}
 	
 	@GET

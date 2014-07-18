@@ -12,7 +12,7 @@ import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.TypeRegistry;
 
 public class PITApplication extends ResourceConfig {
-
+	
 	public PITApplication() throws IOException {
 		super();
 		packages("rdapit.pitservice");
