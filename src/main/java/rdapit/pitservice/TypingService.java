@@ -62,12 +62,6 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public Map<String, String> getAllProperties(String pid) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
-	}
-
-	@Override
 	public PropertyDefinition describeProperty(String propertyIdentifier) throws IOException {
 		return typeRegistry.queryPropertyDefinition(propertyIdentifier);
 	}
@@ -102,7 +96,7 @@ public class TypingService implements ITypingService {
 				throw new IOException("Unknown kind of type registry entry!");
 		} else {
 			// this is a generic PID record (or unresolvable)
-			return getAllProperties(pid);
+			return queryAllProperties(pid);
 		}
 	}
 
@@ -110,6 +104,11 @@ public class TypingService implements ITypingService {
 	public boolean isTypeRegistryPID(String pid) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented yet");
+	}
+
+	@Override
+	public Map<String, String> queryAllProperties(String pid) throws IOException {
+		return identifierSystem.queryAllProperties(pid);
 	}
 
 }

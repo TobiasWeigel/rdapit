@@ -24,6 +24,17 @@ public interface IIdentifierSystem {
 	public boolean isIdentifierRegistered(String pid) throws IOException;
 
 	/**
+	 * Queries all properties from the given PID, independent of types.
+	 * 
+	 * @param pid
+	 * @return a map with property identifiers mapping to values. Contains all
+	 *         property values present in the record of the given PID. If the
+	 *         pid is not registered, the method returns null.
+	 * @throws IOException
+	 */
+	public Map<String, String> queryAllProperties(String pid) throws IOException;
+
+	/**
 	 * Queries a single property from the given PID.
 	 * 
 	 * @param pid
@@ -74,7 +85,9 @@ public interface IIdentifierSystem {
 	 * @param pid
 	 * @param typeDefinition
 	 * @return a map with property identifiers mapping to values. Contains all
-	 *         property values present in the record of the given PID.
+	 *         property values present in the record of the given PID that are
+	 *         also specified by the type (mandatory or optional). If the pid is
+	 *         not registered, the method returns null.
 	 * @throws IOException
 	 */
 	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException;

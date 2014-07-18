@@ -125,7 +125,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	}
 
-
 	@Override
 	public boolean isIdentifierRegistered(String pid) {
 		Response response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).head();
@@ -134,7 +133,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	@Override
 	public String queryProperty(String pid, PropertyDefinition propertyDefinition) throws IOException {
-
 		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid).queryParam("type", propertyDefinition.getIdentifier())
 				.request(MediaType.APPLICATION_JSON).get(String.class);
 		// extract the Handle value data entry from the json response
@@ -166,11 +164,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		return queryProperty(pid, propertyDefinitions.get(0));
 	}
 
-	public PIDRecord queryPIDRecord(String pid) throws JsonParseException, JsonMappingException, IOException {
-		String response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get(String.class);
-		return PIDRecord.fromJson(response);
-	}
-	
 	protected String generatePIDName() {
 		String uuid = UUID.randomUUID().toString();
 		return this.generatorPrefix + "/" + uuid;
@@ -181,7 +174,7 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		Response response;
 		String pid = generatePIDName();
 		do {
-			PIDRecord pidRecord = new PIDRecord(pid);
+			HandleRecord pidRecord = new HandleRecord(pid);
 			pidRecord.addProperties(properties);
 			// PUT record to HS
 			String jsonText = objectMapper.writeValueAsString(pidRecord);
@@ -220,4 +213,19 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		throw new UnsupportedOperationException("not implemented");
 	}
 
+	@Override
+	public Map<String, String> queryAllProperties(String pid) throws IOException {
+		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get(String.class);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode root = mapper.readTree(pidResponse);
+		Map<String, String> result = new HashMap<>();
+		for (JsonNode valueNode : root.get("values")) {
+			if (!(valueNode.get("data").get("format").asText().equals("string") || valueNode.get("data").get("format").asText().equals("base64") || valueNode.get("data")
+					.get("format").asText().equals("hex")))
+				continue;
+			// index is ignored..
+			result.put(valueNode.get("type").asText(), valueNode.get("data").get("value").asText());
+		}
+		return result;
+	}
 }

@@ -76,4 +76,10 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 		return false;
 	}
 
+	@Override
+	public Map<String, String> queryAllProperties(String pid) throws IOException {
+		Map<String, String> map = storage.get(pid);
+		return map;
+	}
+
 }

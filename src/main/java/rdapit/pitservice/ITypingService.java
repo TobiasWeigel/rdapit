@@ -15,16 +15,6 @@ import rdapit.typeregistry.TypeDefinition;
 public interface ITypingService extends IIdentifierSystem {
 
 	/**
-	 * Resolves an identifier and returns the full PID record or null if it is
-	 * not registered.
-	 * 
-	 * @param pid
-	 * @return null if the pid is not registered or a Map<String, String> from
-	 *         property identifiers (not names!) to values.
-	 */
-	public Map<String, String> getAllProperties(String pid);
-
-	/**
 	 * Retrieves a property definition
 	 * 
 	 * @param propertyIdentifier

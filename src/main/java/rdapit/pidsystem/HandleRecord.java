@@ -13,30 +13,30 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * A simple PID record encapsulation.
+ * A simple Handle record encapsulation.
  * 
  */
-public class PIDRecord {
+public class HandleRecord {
 
 	private final String pid;
 
 	private HashMap<String, String> properties;
 
-	public PIDRecord(String pid) {
+	public HandleRecord(String pid) {
 		this.pid = pid;
 		this.properties = new HashMap<String, String>();
 	}
 
 	@JsonCreator
-	private PIDRecord(@JsonProperty("handle") String identifier, @JsonProperty("values") Map<String, String> properties) {
+	private HandleRecord(@JsonProperty("handle") String identifier, @JsonProperty("values") Map<String, String> properties) {
 		this.pid = new String(identifier);
 		this.properties = new HashMap<String, String>(properties);
 	}
 
-	public static PIDRecord fromJson(String inputString) throws JsonProcessingException, IOException {
+	public static HandleRecord fromJson(String inputString) throws JsonProcessingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode root = mapper.readTree(inputString);
-		PIDRecord pidRecord = new PIDRecord(new String(root.get("handle").asText()));
+		HandleRecord pidRecord = new HandleRecord(new String(root.get("handle").asText()));
 		for (JsonNode valueNode : root.get("values")) {
 			// key, ValueType, value --> all Strings!
 			throw new UnsupportedOperationException("not yet implemented");

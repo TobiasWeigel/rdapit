@@ -53,7 +53,7 @@ public class TypingRESTResource {
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolvePID(@PathParam("identifier") String identifier) throws IOException {
-		Map<String, String> result = typingService.getAllProperties(identifier);
+		Map<String, String> result = typingService.queryAllProperties(identifier);
 		if (result == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(result).build();
