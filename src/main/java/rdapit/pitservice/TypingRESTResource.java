@@ -56,8 +56,8 @@ public class TypingRESTResource {
 	@GET
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("property") @DefaultValue("") String propertyNameOrID, @QueryParam("type") @DefaultValue("") String typeIdentifier)
-			throws IOException {
+	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("property") @DefaultValue("") String propertyNameOrID,
+			@QueryParam("type") @DefaultValue("") String typeIdentifier) throws IOException {
 		if (!typeIdentifier.isEmpty()) {
 			// Filter by type ID
 			if (!propertyNameOrID.isEmpty())
@@ -97,6 +97,20 @@ public class TypingRESTResource {
 		if (typeDef == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(typeDef).build();
+	}
+
+	@GET
+	@Path("/conformance/{identifier}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response conformanceQuery(@PathParam("identifier") String identifier, @QueryParam("type") String typeIdentifier) {
+		try {
+			boolean b = typingService.conformsToType(identifier, typeIdentifier);
+			return Response.status(200).entity(b).build();
+		} catch (IllegalArgumentException exc) {
+			return Response.status(400).entity(exc.getMessage()).build();
+		} catch (IOException exc) {
+			return Response.status(500).entity("Communication failure to type registry or identifier system: " + exc.getMessage()).build();
+		}
 	}
 
 }

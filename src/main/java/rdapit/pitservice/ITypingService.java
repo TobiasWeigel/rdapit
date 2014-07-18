@@ -34,7 +34,7 @@ public interface ITypingService extends IIdentifierSystem {
 	 */
 	public TypeDefinition describeType(String typeIdentifier) throws IOException;
 
-	public boolean conformsToType(String pid, String typeIdentifier);
+	public boolean conformsToType(String pid, String typeIdentifier) throws IOException;
 
 	/**
 	 * Resolves the given PID without previous knowledge about the kind of

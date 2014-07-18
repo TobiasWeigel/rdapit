@@ -63,9 +63,24 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public boolean conformsToType(String pid, String typeIdentifier) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
+	public boolean conformsToType(String pid, String typeIdentifier) throws IOException {
+		// resolve type record
+		TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
+		if (typeDef == null)
+			throw new IllegalArgumentException("Unknown type: " + typeIdentifier);
+		// resolve PID
+		Map<String, String> props = identifierSystem.queryAllProperties(pid);
+		/*
+		 * Now go through all mandatory properties of the type and check whether
+		 * they are in the pid data. Remember: both the keys of the pid data map
+		 * and the type definition record properties are property identifiers
+		 * (not names)!
+		 */
+		for (String p : typeDef.getMandatoryProperties()) {
+			if (!props.containsKey(p))
+				return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -122,12 +137,12 @@ public class TypingService implements ITypingService {
 	@Override
 	public Map<String, String> queryByType(String pid, String typeIdentifier) throws IOException {
 		TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
-		if (typeDef == null) 
+		if (typeDef == null)
 			return null;
 		// now query PID record
 		Map<String, String> result = identifierSystem.queryByType(pid, typeDef);
 		return result;
-		
+
 	}
 
 }
