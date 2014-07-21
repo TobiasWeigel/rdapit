@@ -1,11 +1,15 @@
 package rdapit.pitservice;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -113,4 +117,31 @@ public class TypingRESTResource {
 		}
 	}
 
+	@POST
+	@Path("/pid")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response registerPID(Map<String, String> properties) {
+		try {
+			String pid = typingService.registerPID(properties);
+			return Response.status(201).entity(pid).build();
+		} catch (IOException exc) {
+			return Response.status(500).entity("Communication failure to identifier system: " + exc.getMessage()).build();
+		}
+	}
+
+	@DELETE
+	@Path("/pid/{identifier}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deletePID(@PathParam("identifier") String identifier) {
+		boolean b = typingService.deletePID(identifier);
+		if (b) {
+			// This is not strictly necessary, but we just do it as a courtesy
+			// (additional information to the user)
+			Map<String, String> result = new HashMap<>();
+			result.put(identifier, "deleted");
+			return Response.status(200).entity(result).build();
+		} else
+			return Response.status(404).build();
+	}
 }

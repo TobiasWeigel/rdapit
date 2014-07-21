@@ -158,9 +158,9 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public void deletePID(String pid) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
+	public boolean deletePID(String pid) {
+		Response response = individualHandleTarget.resolveTemplate("handle",  pid).request().header("Authorization",  "Basic "+authInfo).delete();
+		return response.getStatus() == 200; 
 	}
 
 	@Override

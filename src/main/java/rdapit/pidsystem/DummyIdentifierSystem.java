@@ -49,15 +49,13 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	}
 
 	@Override
-	public void deletePID(String pid) {
-		// TODO Auto-generated method stub
-
+	public boolean deletePID(String pid) {
+		return storage.remove(pid) != null;
 	}
 
 	@Override
 	public boolean isTypeRegistryPID(String pid) {
-		// TODO Auto-generated method stub
-		return false;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

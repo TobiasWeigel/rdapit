@@ -48,8 +48,8 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public void deletePID(String pid) {
-		identifierSystem.deletePID(pid);
+	public boolean deletePID(String pid) {
+		return identifierSystem.deletePID(pid);
 	}
 
 	@Override

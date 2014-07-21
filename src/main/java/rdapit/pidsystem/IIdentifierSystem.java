@@ -80,8 +80,9 @@ public interface IIdentifierSystem {
 	 * purposes, since we should not delete persistent identifiers...
 	 * 
 	 * @param pid
+	 * @return true if the identifier was deleted, false if it did not exist
 	 */
-	public void deletePID(String pid);
+	public boolean deletePID(String pid);
 
 	/**
 	 * Determines whether the given PID is registered and a special identifier
