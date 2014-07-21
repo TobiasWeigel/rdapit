@@ -20,6 +20,15 @@ import javax.ws.rs.core.Response;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
 
+/**
+ * This is the main class for REST web service interaction. The class offers
+ * basic methods to create, read and delete PID records. Advanced methods
+ * include to read individual properties, read property and type definition
+ * information or check conformance to types.
+ * 
+ * All methods return JSON-encoded responses if not explicitly stated otherwise.
+ * 
+ */
 @Path("/pitapi")
 public class TypingRESTResource {
 
@@ -30,13 +39,28 @@ public class TypingRESTResource {
 		this.typingService = ApplicationContext.getInstance().getTypingService();
 	}
 
+	/**
+	 * Simple ping method for testing (check whether the API is running etc.).
+	 * Not part of the official interface description.
+	 * 
+	 * @return responds with 204 NO CONTENT.
+	 */
 	@GET
-	@Path("/test")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String simpleTest() {
-		return "Hello World!";
+	@Path("/ping")
+	public Response simplePing() {
+		return Response.status(204).build();
 	}
 
+	/**
+	 * Generic resolution method to read PID records, property or type
+	 * definitions. Not part of the official interface description.
+	 * 
+	 * @param identifier
+	 *            an identifier string
+	 * @return depending on the nature of the identified entity, the result can
+	 *         be a PID record, a property or a type definition.
+	 * @throws IOException
+	 */
 	@GET
 	@Path("/generic/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -47,6 +71,15 @@ public class TypingRESTResource {
 		return Response.status(200).entity(obj).build();
 	}
 
+	/**
+	 * Simple HEAD method to check whether a particular pid is registered.
+	 * 
+	 * @param identifier
+	 *            an identifier string
+	 * @return either 200 or 404, indicating whether the PID is registered or
+	 *         not registered
+	 * @throws IOException
+	 */
 	@HEAD
 	@Path("/pid/{identifier}")
 	public Response isPidRegistered(@PathParam("identifier") String identifier) throws IOException {
@@ -57,6 +90,36 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 	}
 
+	/**
+	 * Sophisticated GET method to return all or some properties of an
+	 * identifier.
+	 * 
+	 * @param identifier
+	 * @param propertyNameOrID
+	 *            Optional. Cannot be used in combination with the type
+	 *            parameter. If given, the method returns only the value of the
+	 *            single property. Note that this can be either a property name
+	 *            or a property identifier. If it is a property name, the method
+	 *            will consult a type registry to retrieve the corresponding
+	 *            identifier. If this request does not provide a unique answer
+	 *            (multiple properties with same name), the method will return a
+	 *            412 (Precondition failed). If the name is not known in the
+	 *            registry, the method will return a 404. The method will also
+	 *            return 404 if a property identifier was given, the PID exists
+	 *            but does not carry the given property.
+	 * @param typeIdentifier
+	 *            Optional. Cannot be used in combination with the property
+	 *            parameter. If given, the method will return all properties
+	 *            (mandatory and optional) that are specified in the given type
+	 *            and listed in the identifier's record. The type parameter must
+	 *            be a type identifier available from the registry. If the
+	 *            identifier is not known in the registry, the method will
+	 *            return 404.
+	 * @return if the request is processed property, the method will return 200
+	 *         OK and a map of strings to strings from property identifiers (not
+	 *         names!) to values.
+	 * @throws IOException
+	 */
 	@GET
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -66,23 +129,37 @@ public class TypingRESTResource {
 			// Filter by type ID
 			if (!propertyNameOrID.isEmpty())
 				return Response.status(400).entity("Filtering by both type and property is not supported!").build();
-			typingService.queryByType(identifier, typeIdentifier);
-		}
-		if (propertyNameOrID.isEmpty()) {
+			Map<String, String> result = typingService.queryByType(identifier, typeIdentifier);
+			if (result == null)
+				return Response.status(404).entity("Type not registered in the registry").build();
+			return Response.status(200).entity(result).build();
+		} else if (propertyNameOrID.isEmpty()) {
 			// No filtering - return all properties
 			Map<String, String> result = typingService.queryAllProperties(identifier);
 			if (result == null)
-				return Response.status(404).build();
+				return Response.status(404).entity("Identifier not registered").build();
 			return Response.status(200).entity(result).build();
 		} else {
 			// Filter by property name or ID
-			String result = typingService.queryProperty(identifier, propertyNameOrID);
-			if (result == null)
-				return Response.status(404).build();
-			return Response.status(200).entity(result).build();
+			try {
+				String result = typingService.queryProperty(identifier, propertyNameOrID);
+				if (result == null)
+					return Response.status(404).entity("Property not present in identifier record").build();
+				return Response.status(200).entity(result).build();
+			} catch (IllegalArgumentException exc) {
+				return Response.status(412).entity(exc.getMessage()).build();
+			}
 		}
 	}
 
+	/**
+	 * GET method to read the definition of a property from the type registry.
+	 * 
+	 * @param identifier
+	 *            the property identifier
+	 * @return a property definition record or 404 if the property is unknown.
+	 * @throws IOException
+	 */
 	@GET
 	@Path("/property/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -93,6 +170,14 @@ public class TypingRESTResource {
 		return Response.status(200).entity(propDef).build();
 	}
 
+	/**
+	 * GET method to read the definition of a type from the type registry.
+	 * 
+	 * @param identifier
+	 *            the type identifier
+	 * @return a type definition record or 404 if the type is unknown.
+	 * @throws IOException
+	 */
 	@GET
 	@Path("/type/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -103,6 +188,16 @@ public class TypingRESTResource {
 		return Response.status(200).entity(typeDef).build();
 	}
 
+	/**
+	 * GET method to check whether a given identifier conforms to a given type.
+	 * 
+	 * @param identifier
+	 *            the identifier name
+	 * @param typeIdentifier
+	 *            the type identifier
+	 * @return a simple JSON record with a single boolean stating the
+	 *         conformance result
+	 */
 	@GET
 	@Path("/conformance/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -117,6 +212,15 @@ public class TypingRESTResource {
 		}
 	}
 
+	/**
+	 * Generic POST method to create new identifiers. The method determines an
+	 * identifier name automatically, based on a purely random (version 4) UUID.
+	 * 
+	 * @param properties
+	 *            a map from string to string, mapping property identifiers to
+	 *            values.
+	 * @return a simple string with the newly created PID name.
+	 */
 	@POST
 	@Path("/pid")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -130,6 +234,13 @@ public class TypingRESTResource {
 		}
 	}
 
+	/**
+	 * DELETE method to delete identifiers. Testing purposes only! Not part of
+	 * the official specification.
+	 * 
+	 * @param identifier
+	 * @return 200 or 404
+	 */
 	@DELETE
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)

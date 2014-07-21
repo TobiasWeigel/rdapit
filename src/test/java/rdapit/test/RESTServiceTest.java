@@ -29,8 +29,8 @@ public class RESTServiceTest extends JerseyTest {
 		WebTarget pidResolveTarget = rootTarget.path("pid").path("{id}");
 		WebTarget propertyResolveTarget = rootTarget.path("property").path("{id}");
 		/* Simple tests */
-		Response resp = rootTarget.path("test").request().get();
-		assertEquals(200, resp.getStatus());
+		Response resp = rootTarget.path("ping").request().get();
+		assertEquals(204, resp.getStatus());
 		// Some postings indicate that Tomcat may have a problem with encoded
 		// slashes.
 		// There's a solution however: in setenv include
