@@ -7,7 +7,9 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -136,10 +138,18 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		Response response;
 		String pid = generatePIDName();
 		do {
-			HandleRecord pidRecord = new HandleRecord(pid);
-			pidRecord.addProperties(properties);
 			// PUT record to HS
-			String jsonText = objectMapper.writeValueAsString(pidRecord);
+			Collection<Map<String, String>> record = new LinkedList<Map<String, String>>();
+			int idx = 0;
+			for (String key : properties.keySet()) {
+				idx += 1;
+				Map<String, String> handleValue = new HashMap<String, String>();
+				handleValue.put("index", "" + idx);
+				handleValue.put("type", key);
+				handleValue.put("data", properties.get(key));
+				record.add(handleValue);
+			}
+			String jsonText = objectMapper.writeValueAsString(record);
 			response = individualHandleTarget.resolveTemplate("handle", pid).queryParam("overwrite", false).request(MediaType.APPLICATION_JSON)
 					.header("Authorization", "Basic " + authInfo).put(Entity.json(jsonText));
 			// status 409 is sent in case the Handle already exists
