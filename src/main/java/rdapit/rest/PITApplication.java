@@ -1,4 +1,4 @@
-package rdapit.pitservice;
+package rdapit.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +8,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 import rdapit.pidsystem.HandleSystemRESTAdapter;
 import rdapit.pidsystem.IIdentifierSystem;
+import rdapit.pitservice.TypingService;
 import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.TypeRegistry;
 

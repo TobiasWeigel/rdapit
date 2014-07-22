@@ -15,7 +15,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
-import rdapit.pitservice.PITApplication;
+import rdapit.rest.PITApplication;
 import rdapit.typeregistry.PropertyDefinition;
 
 public class RESTServiceTest extends JerseyTest {

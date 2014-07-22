@@ -1,6 +1,8 @@
-package rdapit.pitservice;
+package rdapit.rest;
 
 import org.apache.log4j.Logger;
+
+import rdapit.pitservice.TypingService;
 
 /**
  * Singleton. Holds information persistent throughout the life time of the server. 
