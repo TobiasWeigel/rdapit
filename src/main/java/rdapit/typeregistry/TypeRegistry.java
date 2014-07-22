@@ -144,5 +144,5 @@ public class TypeRegistry implements ITypeRegistry {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented yet");
 	}
-
+	
 }

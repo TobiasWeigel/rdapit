@@ -29,7 +29,7 @@ import rdapit.typeregistry.TypeDefinition;
  * All methods return JSON-encoded responses if not explicitly stated otherwise.
  * 
  */
-@Path("/pitapi")
+@Path("pitapi")
 public class TypingRESTResource {
 
 	protected TypingService typingService;
@@ -48,7 +48,7 @@ public class TypingRESTResource {
 	@GET
 	@Path("/ping")
 	public Response simplePing() {
-		return Response.status(204).build();
+		return Response.status(200).entity("Hello World").build();
 	}
 
 	/**
@@ -189,7 +189,8 @@ public class TypingRESTResource {
 	}
 
 	/**
-	 * GET method to check whether a given identifier conforms to a given type.
+	 * GET method to check whether a given identifier conforms to a given type,
+	 * i.e. carries all mandatory properties of the type.
 	 * 
 	 * @param identifier
 	 *            the identifier name
