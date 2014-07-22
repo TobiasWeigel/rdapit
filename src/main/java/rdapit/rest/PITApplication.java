@@ -16,7 +16,7 @@ public class PITApplication extends ResourceConfig {
 	
 	public PITApplication() throws IOException {
 		super();
-		packages("rdapit.pitservice");
+		packages("rdapit.rest");
 		
 		/* TODO: review this for production env. The property file should be outside the jar. */
 		Properties properties = new Properties();

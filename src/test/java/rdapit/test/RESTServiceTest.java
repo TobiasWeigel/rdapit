@@ -30,7 +30,7 @@ public class RESTServiceTest extends JerseyTest {
 		WebTarget propertyResolveTarget = rootTarget.path("property").path("{id}");
 		/* Simple tests */
 		Response resp = rootTarget.path("ping").request().get();
-		assertEquals(204, resp.getStatus());
+		assertEquals(200, resp.getStatus());
 		// Some postings indicate that Tomcat may have a problem with encoded
 		// slashes.
 		// There's a solution however: in setenv include
