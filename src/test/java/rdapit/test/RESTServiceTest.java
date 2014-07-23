@@ -15,8 +15,13 @@ import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
+import rdapit.pidsystem.HandleSystemRESTAdapter;
+import rdapit.pidsystem.IIdentifierSystem;
+import rdapit.pitservice.TypingService;
+import rdapit.rest.ApplicationContext;
 import rdapit.rest.PITApplication;
 import rdapit.typeregistry.PropertyDefinition;
+import rdapit.typeregistry.TypeRegistry;
 
 public class RESTServiceTest extends JerseyTest {
 
@@ -83,7 +88,10 @@ public class RESTServiceTest extends JerseyTest {
 	@Override
 	protected Application configure() {
 		try {
-			return new PITApplication();
+			IIdentifierSystem ids = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4"); 
+			TypeRegistry tr = new TypeRegistry("http://typeregistry.org/registrar");
+			new ApplicationContext(new TypingService(ids, tr));
+			return new PITApplication(); 
 		} catch (Exception exc) {
 			throw new IllegalStateException("Could not initialize application: ", exc);
 		}
