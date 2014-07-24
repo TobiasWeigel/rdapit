@@ -42,15 +42,26 @@ public class TypeRegistry implements ITypeRegistry {
 		JsonNode entry = rootNode.get("extras").get("data");
 		String propName = "";
 		String valuetype = "";
+		String namespace = "";
+		String description = "";
 		if (entry.has("key_value")) {
 			for (JsonNode entryKV : entry.get("key_value")) {
-				if (entryKV.get("key").asText().equalsIgnoreCase("name"))
+				String key = entryKV.get("key").asText();
+				if (key.equalsIgnoreCase("name"))
 					propName = entryKV.get("val").asText();
-				else if (entryKV.get("key").asText().equalsIgnoreCase("range"))
+				else if (key.equals(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY) && !entryKV.get("val").asText().equalsIgnoreCase("PROPERTY_DEFINITION"))
+					// this is not a property record!
+					return null;
+				else if (key.equalsIgnoreCase("range"))
 					valuetype = entryKV.get("val").asText();
+				else if (key.equalsIgnoreCase("namespace"))
+					namespace = entryKV.get("val").asText();
+				else if (key.equalsIgnoreCase("description"))
+					description = entryKV.get("val").asText();
+				
 			}
 		}
-		PropertyDefinition result = new PropertyDefinition(entry.get("ID").asText(), propName, valuetype);
+		PropertyDefinition result = new PropertyDefinition(entry.get("ID").asText(), propName, valuetype, namespace, description);
 		return result;
 	}
 
@@ -108,7 +119,7 @@ public class TypeRegistry implements ITypeRegistry {
 				String key = entryKV.get("key").asText();
 				if (key.equalsIgnoreCase("name"))
 					typeName = entryKV.get("val").asText();
-				else if (key.equals(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY) && !entryKV.get("val").asText().equals("TypeDefinition"))
+				else if (key.equals(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY) && !entryKV.get("val").asText().equalsIgnoreCase("TYPE_DEFINITION"))
 					// this is not a type record!
 					return null;
 				else if (key.equalsIgnoreCase("description"))

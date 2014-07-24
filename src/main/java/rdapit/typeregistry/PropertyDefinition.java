@@ -15,7 +15,8 @@ public class PropertyDefinition {
 	 * Marker value to distinguish type and profile records from each other.
 	 * Formerly known as "pit.construct".
 	 */
-	public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "11314.2/7c7100d34a44a9e5e643a5f0cfbfebb5"; 
+	//public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "11314.2/7c7100d34a44a9e5e643a5f0cfbfebb5"; 
+	public static final String IDENTIFIER_PIT_MARKER_PROPERTY = "PIT_CONSTRUCT";
 
 	/** a PID */
 	@JsonProperty

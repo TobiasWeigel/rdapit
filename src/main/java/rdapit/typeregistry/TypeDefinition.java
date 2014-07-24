@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Encapsulates a type in the type registry, roughly defined as a set of
  * properties.
@@ -41,6 +43,7 @@ public class TypeDefinition {
 	 * 
 	 * @return a set of property identifiers (strings)
 	 */
+	@JsonIgnore
 	public Set<String> getAllProperties() {
 		return new HashSet<String>(properties.keySet());
 	}
