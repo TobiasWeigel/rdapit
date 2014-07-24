@@ -1,5 +1,7 @@
 package rdapit.rest;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -14,19 +16,18 @@ import rdapit.typeregistry.TypeRegistry;
 
 public class PITApplication extends ResourceConfig {
 
+	public static final String PROPERTIES_FILE_PATH = "/usr/local/rda/pitapi.properties"; 
+	
 	public PITApplication() throws IOException {
 		super();
 		packages("rdapit.rest");
 
 		if (ApplicationContext.instance == null) {
-			/*
-			 * TODO: review this for production env. The property file should be
-			 * outside the jar.
-			 */
 			Properties properties = new Properties();
-			InputStream propIS = Thread.currentThread().getContextClassLoader().getResourceAsStream("pitapi.properties");
-			if (propIS == null)
-				throw new IOException("Property file pitapi.properties not found on classpath!");
+			File propFile = new File(PROPERTIES_FILE_PATH);
+			if (!propFile.exists())
+				throw new IOException("Property file pitapi.properties must be available at path " + PROPERTIES_FILE_PATH);
+			InputStream propIS = new FileInputStream(propFile);
 			properties.load(propIS);
 
 			IIdentifierSystem identifierSystem = new HandleSystemRESTAdapter(properties.getProperty("pidsystem.handle.baseURI"),

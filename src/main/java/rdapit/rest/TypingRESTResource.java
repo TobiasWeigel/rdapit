@@ -44,7 +44,7 @@ public class TypingRESTResource {
 	 * Simple ping method for testing (check whether the API is running etc.).
 	 * Not part of the official interface description.
 	 * 
-	 * @return responds with 204 NO CONTENT.
+	 * @return responds with 200 OK and a "Hello World" message in the body.
 	 */
 	@GET
 	@Path("/ping")
