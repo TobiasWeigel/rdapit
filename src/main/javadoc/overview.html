@@ -1,0 +1,48 @@
+<body>
+
+	The RDA PIT API provides facilities to query and manipulate typed
+	information available from persistent identifiers and shared through
+	type registries.
+	<br />
+
+	<h2>Deployment</h2>
+
+	The API prototype was written using
+	<a href="http://jersey.java.net" target="_blank">Jersey 2</a> based on
+	JAX-RS 2.0. The project offers full support for
+	<a href="http://maven.apache.org" target="_blank">Apache Maven</a>.
+	<br /> The following instructions assume deployment on an
+	<a href="http://tomcat.apache.org" target="_blank">Apache Tomcat 8</a>
+	application server.
+	<ol>
+		<li>Use the following call to generate a <i>web application
+				archive (war) file</i>: <pre>
+# mvn war:war
+</pre>
+		</li>
+
+		<li>The REST service must be configured properly so it knows
+			which identifier service and type registry to contact.<br> An
+			example configuration file in Java's properties file format can be
+			found <a href="resources/pitapi.properties.example" target="_blank">here</a>.
+			Copy it to <code>/usr/local/rda/pitapi.properties</code> and make
+			sure the application server's user has sufficient permissions to read it.
+		</li>
+
+		<li>Deploy the generated war file on your application server.</li>
+
+		<li>A simple test to verify that the API is running properly can
+			be made by calling the {@link
+			rdapit.rest.TypingRESTResource#simplePing ping} method: <pre>
+# curl http://your.server/your.application.path/pitapi/ping
+Hello World
+</pre>
+		</li>
+	</ol>
+
+	<h2>Usage</h2>
+
+	Detailed documentation on the REST methods available can be found in
+	the {@link rdapit.rest.TypingRESTResource TypingRESTResource} class.
+
+</body>

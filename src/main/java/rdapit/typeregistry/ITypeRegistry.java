@@ -7,8 +7,6 @@ import java.util.List;
  * Main abstraction interface towards the type registry. Contains all methods
  * required from the registry by the core services.
  * 
- * @author Tobias Weigel
- * 
  */
 public interface ITypeRegistry {
 

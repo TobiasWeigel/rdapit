@@ -5,7 +5,7 @@
   <artifactId>rdapit</artifactId>
   <version>0.1</version>
   <packaging>war</packaging>
-  <name>rdapit</name>
+  <name>RDA-PID Information Types</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -31,6 +31,7 @@
         <version>2.9.1</version>
         <configuration>
           <sourcepath>src/main/java</sourcepath>
+          <docfilessubdirs>true</docfilessubdirs>
         </configuration>
       </plugin>
     </plugins>
@@ -44,6 +45,7 @@
         <version>2.9.1</version>
         <configuration>
           <sourcepath>src/main/java</sourcepath>
+          <docfilessubdirs>true</docfilessubdirs>
         </configuration>
       </plugin>
     </plugins>

@@ -29,6 +29,17 @@ import rdapit.typeregistry.TypeDefinition;
  * 
  * All methods return JSON-encoded responses if not explicitly stated otherwise.
  * 
+ * <h3>Example calls</h3>
+ * 
+ * The following calls assume that the REST service is deployed at the base URI <u>http://localhost/pitapi</u>. <br/>
+ * 
+ * A simple test to check whether the REST service is running can be performed by calling the {@link #simplePing ping} method:
+ * 
+ * <p><pre>
+ * # curl http://localhost/pitapi/ping
+ * Hello World
+ * </pre></p>
+ * 
  */
 @Path("pitapi")
 public class TypingRESTResource {
