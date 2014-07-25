@@ -80,15 +80,20 @@ public class TypeRegistry implements ITypeRegistry {
 			// 'name' and 'type' of the property
 			String valuetype = "";
 			String propertyNameFromRecord = "";
+			boolean isPropDef = false;
 			if (entry.has("key_value")) {
 				for (JsonNode entryKV : entry.get("key_value")) {
+					if (entryKV.get("key").asText().equalsIgnoreCase(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY)) {
+						if (entryKV.get("val").asText().equalsIgnoreCase("PROPERTY_DEFINITION"))
+							isPropDef = true;
+					}
 					if (entryKV.get("key").asText().equalsIgnoreCase("name") && entryKV.get("val").asText().equalsIgnoreCase(propertyName))
 						propertyNameFromRecord = entryKV.get("val").asText();
 					else if (entryKV.get("key").asText().equalsIgnoreCase("range"))
 						valuetype = entryKV.get("val").asText();
 				}
 			}
-			if (!valuetype.isEmpty() && !propertyNameFromRecord.isEmpty()) {
+			if (isPropDef && !valuetype.isEmpty() && !propertyNameFromRecord.isEmpty()) {
 				// found both value type and original property name; add valid
 				// property definition to result list
 				results.add(new PropertyDefinition(entry.get("ID").asText(), propertyNameFromRecord, valuetype));

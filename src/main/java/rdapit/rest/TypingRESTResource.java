@@ -38,28 +38,44 @@ import rdapit.typeregistry.TypeDefinition;
  * by calling the {@link #simplePing ping} method:
  * 
  * <pre>
- * # curl http://localhost/pitapi/ping
+ * $ curl http://localhost/pitapi/ping
  * Hello World
  * </pre>
  * 
  * <h4>Query properties of a pid</h4>
  * 
- * To query all properties, simply call {@link #resolvePID /pid}. Notice that you must encode all forward slashes in the PID name (replace with %2F).<br/>
- * An unsuccessful request will return a 404: 
+ * To query all properties, simply call {@link #resolvePID /pid}. Notice that
+ * you must encode all forward slashes in the PID name (replace with %2F).<br/>
+ * An unsuccessful request will return a 404:
  * 
  * <pre>
- * # curl http://localhost/pitapi/pid/1234%2F5678
+ * $ curl http://localhost/pitapi/pid/1234%2F5678
  * ...
  * &lt; HTTP/1.1 404 Not Found
  * ...
- * Identifier not registered 
+ * Identifier not registered
  * </pre>
  * 
  * A successful request may look like this:
+ * 
  * <pre>
- * # curl http://localhost/pitapi/pid/11043.4
- * {"11314.2/2f305c8320611911a9926bb58dfad8c9":"CC-BY","URL":"http://www.example.com"} 
+ * $ curl http://localhost/pitapi/pid/11043.4%2FPITAPI_TEST1
+ * {"11314.2/2f305c8320611911a9926bb58dfad8c9":"CC-BY","URL":"http://www.example.com"}
  * </pre>
+ * 
+ * You can also query individual properties, either by their identifier or name.
+ * Notice that querying by property name may fail because names are not unique:
+ * The method will perform a search in the type registry which may produce
+ * multiple results. <br/>
+ * The following request queries a "license" property by its identifier and by name:
+ * 
+ * <pre>
+ * $ curl http://localhost/pitapi/pid/11043.4%2FPITAPI_TEST1?property=11314.2%2F2f305c8320611911a9926bb58dfad8c9
+ * CC-BY
+ * $ curl http://localhost/pitapi/pid/11043.4%2FPITAPI_TEST1?property=license
+ * CC-BY
+ * </pre>
+ * 
  * 
  */
 @Path("pitapi")

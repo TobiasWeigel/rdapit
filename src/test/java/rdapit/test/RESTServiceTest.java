@@ -50,9 +50,8 @@ public class RESTServiceTest extends JerseyTest {
 		Map<String, String> pidrec = resp.readEntity(new HashMap<String, String>().getClass());
 		assertEquals("http://www.example.com", pidrec.get("URL"));
 		/* Query single property (by property name) */
-		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("property", "URL").request().get();
-		assertEquals(404, resp.getStatus()); // will return a 404 because URL is
-												// not a registered property..
+		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("property", "LICENSE").request().get();
+		assertEquals(200, resp.getStatus());
 		/* Query property by type */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("type", "11043.4/test_type").request().get();
 		/* Query prop definition */
