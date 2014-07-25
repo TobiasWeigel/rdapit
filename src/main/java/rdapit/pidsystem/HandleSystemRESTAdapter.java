@@ -169,8 +169,8 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	@Override
 	public boolean deletePID(String pid) {
-		Response response = individualHandleTarget.resolveTemplate("handle",  pid).request().header("Authorization",  "Basic "+authInfo).delete();
-		return response.getStatus() == 200; 
+		Response response = individualHandleTarget.resolveTemplate("handle", pid).request().header("Authorization", "Basic " + authInfo).delete();
+		return response.getStatus() == 200;
 	}
 
 	@Override
@@ -181,13 +181,15 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	@Override
 	public Map<String, String> queryAllProperties(String pid) throws IOException {
-		String pidResponse = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get(String.class);
+		Response resp = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get();
+		if (resp.getStatus() != 200)
+			return null;
 		ObjectMapper mapper = new ObjectMapper();
-		JsonNode root = mapper.readTree(pidResponse);
+		JsonNode root = mapper.readTree(resp.readEntity(String.class));
 		Map<String, String> result = new HashMap<>();
 		for (JsonNode valueNode : root.get("values")) {
-			if (!(valueNode.get("data").get("format").asText().equals("string") || valueNode.get("data").get("format").asText().equals("base64") || valueNode.get("data")
-					.get("format").asText().equals("hex")))
+			if (!(valueNode.get("data").get("format").asText().equals("string") || valueNode.get("data").get("format").asText().equals("base64") || valueNode
+					.get("data").get("format").asText().equals("hex")))
 				continue;
 			// index is ignored..
 			result.put(valueNode.get("type").asText(), valueNode.get("data").get("value").asText());

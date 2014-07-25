@@ -18,13 +18,11 @@ public class TypingService implements ITypingService {
 
 	protected final IIdentifierSystem identifierSystem;
 	protected final ITypeRegistry typeRegistry;
-	protected final PropertyDefinition pitmarkerPropertyDefinition;
 
 	public TypingService(IIdentifierSystem identifierSystem, ITypeRegistry typeRegistry) throws IOException {
 		super();
 		this.identifierSystem = identifierSystem;
 		this.typeRegistry = typeRegistry;
-		this.pitmarkerPropertyDefinition = typeRegistry.queryPropertyDefinition(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY);
 	}
 
 	@Override

@@ -40,12 +40,10 @@ public class RESTServiceTest extends JerseyTest {
 		// slashes.
 		// There's a solution however: in setenv include
 		// CATALINA_OPTS="-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
-		resp = propertyResolveTarget.resolveTemplate("id", PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY).request().get();
-		assertEquals(200, resp.getStatus());
-		PropertyDefinition propDef = resp.readEntity(PropertyDefinition.class);
-		assertEquals("pit.construct", propDef.getName());
 		assertEquals(200, pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().head().getStatus());
-		assertEquals(404, pidResolveTarget.resolveTemplate("id", "invalid_or_unknown_identifier").request().head().getStatus());
+		assertEquals(200, pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get().getStatus());
+		assertEquals(404, pidResolveTarget.resolveTemplate("id", "11043.4/invalid_or_unknown_identifier").request().head().getStatus());
+		assertEquals(404, pidResolveTarget.resolveTemplate("id", "11043.4/invalid_or_unknown_identifier").request().get().getStatus());
 		/* Query full record */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
@@ -57,6 +55,8 @@ public class RESTServiceTest extends JerseyTest {
 												// not a registered property..
 		/* Query property by type */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("type", "11043.4/test_type").request().get();
+		/* Query prop definition */
+		assertEquals(200, propertyResolveTarget.resolveTemplate("id", "11314.2/56bb4d16b75ae50015b3ed634bbb519f").request().get().getStatus());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -88,10 +88,10 @@ public class RESTServiceTest extends JerseyTest {
 	@Override
 	protected Application configure() {
 		try {
-			IIdentifierSystem ids = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4"); 
+			IIdentifierSystem ids = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
 			TypeRegistry tr = new TypeRegistry("http://typeregistry.org/registrar");
 			new ApplicationContext(new TypingService(ids, tr));
-			return new PITApplication(); 
+			return new PITApplication();
 		} catch (Exception exc) {
 			throw new IllegalStateException("Could not initialize application: ", exc);
 		}

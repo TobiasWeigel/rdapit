@@ -31,14 +31,35 @@ import rdapit.typeregistry.TypeDefinition;
  * 
  * <h3>Example calls</h3>
  * 
- * The following calls assume that the REST service is deployed at the base URI <u>http://localhost/pitapi</u>. <br/>
+ * The following calls assume that the REST service is deployed at the base URI
+ * <u>http://localhost/pitapi</u>. <br/>
  * 
- * A simple test to check whether the REST service is running can be performed by calling the {@link #simplePing ping} method:
+ * A simple test to check whether the REST service is running can be performed
+ * by calling the {@link #simplePing ping} method:
  * 
- * <p><pre>
+ * <pre>
  * # curl http://localhost/pitapi/ping
  * Hello World
- * </pre></p>
+ * </pre>
+ * 
+ * <h4>Query properties of a pid</h4>
+ * 
+ * To query all properties, simply call {@link #resolvePID /pid}. Notice that you must encode all forward slashes in the PID name (replace with %2F).<br/>
+ * An unsuccessful request will return a 404: 
+ * 
+ * <pre>
+ * # curl http://localhost/pitapi/pid/1234%2F5678
+ * ...
+ * &lt; HTTP/1.1 404 Not Found
+ * ...
+ * Identifier not registered 
+ * </pre>
+ * 
+ * A successful request may look like this:
+ * <pre>
+ * # curl http://localhost/pitapi/pid/11043.4
+ * {"11314.2/2f305c8320611911a9926bb58dfad8c9":"CC-BY","URL":"http://www.example.com"} 
+ * </pre>
  * 
  */
 @Path("pitapi")
@@ -127,9 +148,10 @@ public class TypingRESTResource {
 	 *            be a type identifier available from the registry. If the
 	 *            identifier is not known in the registry, the method will
 	 *            return 404.
-	 * @return if the request is processed property, the method will return 200
+	 * @return if the request is processed properly, the method will return 200
 	 *         OK and a map of strings to strings from property identifiers (not
-	 *         names!) to values.
+	 *         names!) to values. The method will return 404 if the identifier
+	 *         is not known.
 	 * @throws IOException
 	 */
 	@GET
