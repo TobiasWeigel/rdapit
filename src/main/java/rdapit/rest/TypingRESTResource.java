@@ -146,18 +146,12 @@ public class TypingRESTResource {
 	 * identifier.
 	 * 
 	 * @param identifier
-	 * @param propertyNameOrID
+	 * @param propertyIdentifier
 	 *            Optional. Cannot be used in combination with the type
 	 *            parameter. If given, the method returns only the value of the
-	 *            single property. Note that this can be either a property name
-	 *            or a property identifier. If it is a property name, the method
-	 *            will consult a type registry to retrieve the corresponding
-	 *            identifier. If this request does not provide a unique answer
-	 *            (multiple properties with same name), the method will return a
-	 *            412 (Precondition failed). If the name is not known in the
-	 *            registry, the method will return a 404. The method will also
-	 *            return 404 if a property identifier was given, the PID exists
-	 *            but does not carry the given property.
+	 *            single property. The identifier must be registered for a
+	 *            property in the type registry. The method will return 404 if
+	 *            the PID exists but does not carry the given property.
 	 * @param typeIdentifier
 	 *            Optional. Cannot be used in combination with the property
 	 *            parameter. If given, the method will return all properties
@@ -169,40 +163,37 @@ public class TypingRESTResource {
 	 *            <i>typeConformance</i> that is only true if all mandatory
 	 *            properties of the type are present in the PID record.
 	 * @return if the request is processed properly, the method will return 200
-	 *         OK and a JSON object that contains a map of strings to strings from property identifiers (not
-	 *         names!) to values, named 'values', and optional meta information. The method will return 404 if the identifier
-	 *         is not known.
+	 *         OK and a JSON object that contains a map of strings to strings
+	 *         from property identifiers (not names!) to values, named 'values',
+	 *         and optional meta information. The method will return 404 if the
+	 *         identifier is not known.
 	 * @throws IOException
 	 */
 	@GET
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("property") @DefaultValue("") String propertyNameOrID,
-			@QueryParam("type") @DefaultValue("") String typeIdentifier) throws IOException {
+	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier,
+			@QueryParam("filter_by_type") @DefaultValue("") String typeIdentifier) throws IOException {
 		if (!typeIdentifier.isEmpty()) {
 			// Filter by type ID
-			if (!propertyNameOrID.isEmpty())
+			if (!propertyIdentifier.isEmpty())
 				return Response.status(400).entity("Filtering by both type and property is not supported!").build();
 			PIDInformation result = typingService.queryByTypeWithConformance(identifier, typeIdentifier);
 			if (result == null)
 				return Response.status(404).entity("Type not registered in the registry").build();
 			return Response.status(200).entity(result).build();
-		} else if (propertyNameOrID.isEmpty()) {
+		} else if (propertyIdentifier.isEmpty()) {
 			// No filtering - return all properties
 			Map<String, String> result = typingService.queryAllProperties(identifier);
 			if (result == null)
 				return Response.status(404).entity("Identifier not registered").build();
 			return Response.status(200).entity(new PIDInformation(result)).build();
 		} else {
-			// Filter by property name or ID
-			try {
-				PIDInformation result = typingService.queryProperty(identifier, propertyNameOrID);
-				if (result == null)
-					return Response.status(404).entity("Property not present in identifier record").build();
-				return Response.status(200).entity(result).build();
-			} catch (IllegalArgumentException exc) {
-				return Response.status(412).entity(exc.getMessage()).build();
-			}
+			// Filter by property ID
+			PIDInformation result = typingService.queryProperty(identifier, propertyIdentifier);
+			if (result == null)
+				return Response.status(404).entity("Property not present in identifier record").build();
+			return Response.status(200).entity(result).build();
 		}
 	}
 

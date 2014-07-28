@@ -47,8 +47,8 @@ public class RESTServiceTest extends JerseyTest {
 		assertEquals(200, resp.getStatus());
 		PIDInformation pidrec = resp.readEntity(PIDInformation.class);
 		assertEquals("http://www.example.com", pidrec.getPropertyValues().get("URL"));
-		/* Query single property (by property name) */
-		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("property", "LICENSE").request().get();
+		/* Query single property */
+		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("filter_by_property", "11314.2/2f305c8320611911a9926bb58dfad8c9").request().get();
 		assertEquals(200, resp.getStatus());
 		/* Query property by type */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("type", "11043.4/test_type").request().get();

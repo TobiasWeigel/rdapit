@@ -53,9 +53,8 @@ public interface ITypingService extends IIdentifierSystem {
 	 * Queries a single property from the PID.
 	 * 
 	 * @param pid
-	 * @param propertyNameOrID
-	 *            the method will decide whether the given String is a unique
-	 *            identifier or a (potentially ambiguous) name.
+	 * @param propertyIdentifier
+	 *            must be registered in the type registry
 	 * @return a PIDInformation object containing the single property name and
 	 *         value or null if the property is undefined.
 	 * @throws IOException
@@ -63,7 +62,7 @@ public interface ITypingService extends IIdentifierSystem {
 	 *             if the property is defined but ambiguous (type registry query
 	 *             returned multiple results).
 	 */
-	public PIDInformation queryProperty(String pid, String propertyNameOrID) throws IOException;
+	public PIDInformation queryProperty(String pid, String propertyIdentifier) throws IOException;
 
 	/**
 	 * Queries all properties of a type available from the given PID. If

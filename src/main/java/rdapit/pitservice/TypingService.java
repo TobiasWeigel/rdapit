@@ -115,24 +115,15 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public PIDInformation queryProperty(String pid, String propertyNameOrID) throws IOException {
+	public PIDInformation queryProperty(String pid, String propertyIdentifier) throws IOException {
 		PIDInformation pidInfo = new PIDInformation();
-		// check type registry if this is a property identifier
-		PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyNameOrID);
+		// query type registry
+		PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyIdentifier);
 		if (propDef != null) {
 			pidInfo.addProperty(propDef.getName(), identifierSystem.queryProperty(pid, propDef)); 
 			return pidInfo;
 		}
-		// this then may be a property name - so we search for it
-		List<PropertyDefinition> propDefs = typeRegistry.queryPropertyDefinitionByName(propertyNameOrID);
-		if (propDefs.isEmpty())
-			return null;
-		else {
-			if (propDefs.size() > 1)
-				throw new IllegalArgumentException("The given property name '" + propertyNameOrID + "' is not unique in the type registry!");
-			pidInfo.addProperty(propertyNameOrID, identifierSystem.queryProperty(pid, propDefs.get(0)));
-			return pidInfo;
-		}
+		return null;
 	}
 
 	@Override
