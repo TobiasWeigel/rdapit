@@ -115,11 +115,13 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public String queryProperty(String pid, String propertyNameOrID) throws IOException {
+	public PIDInformation queryProperty(String pid, String propertyNameOrID) throws IOException {
+		PIDInformation pidInfo = new PIDInformation();
 		// check type registry if this is a property identifier
 		PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyNameOrID);
 		if (propDef != null) {
-			return identifierSystem.queryProperty(pid, propDef);
+			pidInfo.addProperty(propDef.getName(), identifierSystem.queryProperty(pid, propDef)); 
+			return pidInfo;
 		}
 		// this then may be a property name - so we search for it
 		List<PropertyDefinition> propDefs = typeRegistry.queryPropertyDefinitionByName(propertyNameOrID);
@@ -128,7 +130,8 @@ public class TypingService implements ITypingService {
 		else {
 			if (propDefs.size() > 1)
 				throw new IllegalArgumentException("The given property name '" + propertyNameOrID + "' is not unique in the type registry!");
-			return identifierSystem.queryProperty(pid, propDefs.get(0));
+			pidInfo.addProperty(propertyNameOrID, identifierSystem.queryProperty(pid, propDefs.get(0)));
+			return pidInfo;
 		}
 	}
 
@@ -140,7 +143,20 @@ public class TypingService implements ITypingService {
 		// now query PID record
 		Map<String, String> result = identifierSystem.queryByType(pid, typeDef);
 		return result;
-
 	}
+	
+	public PIDInformation queryByTypeWithConformance(String pid, String typeIdentifier) throws IOException {
+		TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
+		if (typeDef == null)
+			return null;
+		// now query PID record
+		Map<String, String> values = identifierSystem.queryByType(pid, typeDef);
+		PIDInformation pidInfo = new PIDInformation(values);
+		pidInfo.checkTypeConformance(typeDef);
+		return pidInfo;
+	}
+	
+		
+	
 
 }

@@ -30,7 +30,7 @@ public interface ITypingService extends IIdentifierSystem {
 	 * @param typeIdentifier
 	 * @return null if there is no type with given identifier, the definition
 	 *         record otherwise.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public TypeDefinition describeType(String typeIdentifier) throws IOException;
 
@@ -56,10 +56,14 @@ public interface ITypingService extends IIdentifierSystem {
 	 * @param propertyNameOrID
 	 *            the method will decide whether the given String is a unique
 	 *            identifier or a (potentially ambiguous) name.
-	 * @return a String or null if the property is undefined.
+	 * @return a PIDInformation object containing the single property name and
+	 *         value or null if the property is undefined.
 	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 *             if the property is defined but ambiguous (type registry query
+	 *             returned multiple results).
 	 */
-	public String queryProperty(String pid, String propertyNameOrID) throws IOException;
+	public PIDInformation queryProperty(String pid, String propertyNameOrID) throws IOException;
 
 	/**
 	 * Queries all properties of a type available from the given PID. If

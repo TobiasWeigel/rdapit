@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
@@ -67,7 +68,8 @@ import rdapit.typeregistry.TypeDefinition;
  * Notice that querying by property name may fail because names are not unique:
  * The method will perform a search in the type registry which may produce
  * multiple results. <br/>
- * The following request queries a "license" property by its identifier and by name:
+ * The following request queries a "license" property by its identifier and by
+ * name:
  * 
  * <pre>
  * $ curl http://localhost/pitapi/pid/11043.4%2FPITAPI_TEST1?property=11314.2%2F2f305c8320611911a9926bb58dfad8c9
@@ -163,10 +165,12 @@ public class TypingRESTResource {
 	 *            and listed in the identifier's record. The type parameter must
 	 *            be a type identifier available from the registry. If the
 	 *            identifier is not known in the registry, the method will
-	 *            return 404.
+	 *            return 404. The result will also include a boolean value
+	 *            <i>typeConformance</i> that is only true if all mandatory
+	 *            properties of the type are present in the PID record.
 	 * @return if the request is processed properly, the method will return 200
-	 *         OK and a map of strings to strings from property identifiers (not
-	 *         names!) to values. The method will return 404 if the identifier
+	 *         OK and a JSON object that contains a map of strings to strings from property identifiers (not
+	 *         names!) to values, named 'values', and optional meta information. The method will return 404 if the identifier
 	 *         is not known.
 	 * @throws IOException
 	 */
@@ -179,7 +183,7 @@ public class TypingRESTResource {
 			// Filter by type ID
 			if (!propertyNameOrID.isEmpty())
 				return Response.status(400).entity("Filtering by both type and property is not supported!").build();
-			Map<String, String> result = typingService.queryByType(identifier, typeIdentifier);
+			PIDInformation result = typingService.queryByTypeWithConformance(identifier, typeIdentifier);
 			if (result == null)
 				return Response.status(404).entity("Type not registered in the registry").build();
 			return Response.status(200).entity(result).build();
@@ -188,11 +192,11 @@ public class TypingRESTResource {
 			Map<String, String> result = typingService.queryAllProperties(identifier);
 			if (result == null)
 				return Response.status(404).entity("Identifier not registered").build();
-			return Response.status(200).entity(result).build();
+			return Response.status(200).entity(new PIDInformation(result)).build();
 		} else {
 			// Filter by property name or ID
 			try {
-				String result = typingService.queryProperty(identifier, propertyNameOrID);
+				PIDInformation result = typingService.queryProperty(identifier, propertyNameOrID);
 				if (result == null)
 					return Response.status(404).entity("Property not present in identifier record").build();
 				return Response.status(200).entity(result).build();
@@ -236,31 +240,6 @@ public class TypingRESTResource {
 		if (typeDef == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(typeDef).build();
-	}
-
-	/**
-	 * GET method to check whether a given identifier conforms to a given type,
-	 * i.e. carries all mandatory properties of the type.
-	 * 
-	 * @param identifier
-	 *            the identifier name
-	 * @param typeIdentifier
-	 *            the type identifier
-	 * @return a simple JSON record with a single boolean stating the
-	 *         conformance result
-	 */
-	@GET
-	@Path("/conformance/{identifier}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response conformanceQuery(@PathParam("identifier") String identifier, @QueryParam("type") String typeIdentifier) {
-		try {
-			boolean b = typingService.conformsToType(identifier, typeIdentifier);
-			return Response.status(200).entity(b).build();
-		} catch (IllegalArgumentException exc) {
-			return Response.status(400).entity(exc.getMessage()).build();
-		} catch (IOException exc) {
-			return Response.status(500).entity("Communication failure to type registry or identifier system: " + exc.getMessage()).build();
-		}
 	}
 
 	/**

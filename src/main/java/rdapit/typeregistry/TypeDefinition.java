@@ -74,5 +74,9 @@ public class TypeDefinition {
 	public Set<String> getOptionalProperties() {
 		return getProperties(false);
 	}
+	
+	public String getIdentifier() {
+		return identifier;
+	}
 
 }

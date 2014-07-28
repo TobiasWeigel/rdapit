@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -17,15 +16,14 @@ import org.junit.Test;
 
 import rdapit.pidsystem.HandleSystemRESTAdapter;
 import rdapit.pidsystem.IIdentifierSystem;
+import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.rest.ApplicationContext;
 import rdapit.rest.PITApplication;
-import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeRegistry;
 
 public class RESTServiceTest extends JerseyTest {
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testResolve() {
 		/* Prepare targets */
@@ -47,8 +45,8 @@ public class RESTServiceTest extends JerseyTest {
 		/* Query full record */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
-		Map<String, String> pidrec = resp.readEntity(new HashMap<String, String>().getClass());
-		assertEquals("http://www.example.com", pidrec.get("URL"));
+		PIDInformation pidrec = resp.readEntity(PIDInformation.class);
+		assertEquals("http://www.example.com", pidrec.getPropertyValues().get("URL"));
 		/* Query single property (by property name) */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("property", "LICENSE").request().get();
 		assertEquals(200, resp.getStatus());
@@ -58,7 +56,6 @@ public class RESTServiceTest extends JerseyTest {
 		assertEquals(200, propertyResolveTarget.resolveTemplate("id", "11314.2/56bb4d16b75ae50015b3ed634bbb519f").request().get().getStatus());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testCreateDeletePID() {
 		/* Prepare targets */
@@ -75,8 +72,8 @@ public class RESTServiceTest extends JerseyTest {
 		try {
 			/* Read properties */
 			response = pidResolveTarget.resolveTemplate("id", pid).request().get();
-			Map<String, String> readProps = response.readEntity(new HashMap<String, String>().getClass());
-			assertEquals(readProps.get("URL"), properties.get("URL"));
+			PIDInformation pidinfo = response.readEntity(PIDInformation.class);
+			assertEquals(pidinfo.getPropertyValues().get("URL"), properties.get("URL"));
 		} finally {
 			/* Delete PID */
 			response = pidResolveTarget.resolveTemplate("id", pid).request().delete();
