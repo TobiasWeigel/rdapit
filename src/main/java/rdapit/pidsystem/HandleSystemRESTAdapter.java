@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.net.ssl.HostnameVerifier;
@@ -163,8 +164,16 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 
 	@Override
 	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
+		Map<String, String> props = queryAllProperties(pid);
+		// only return properties listed in the type def
+		Map<String, String> result = new HashMap<String, String>();
+		Set<String> typeProps = typeDefinition.getAllProperties();
+		for (String propID: props.keySet()) {
+			if (typeProps.contains(propID)) {
+				result.put(propID, props.get(propID));
+			}
+		}
+		return result;
 	}
 
 	@Override
