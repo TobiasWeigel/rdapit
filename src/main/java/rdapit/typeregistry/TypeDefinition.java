@@ -1,10 +1,13 @@
 package rdapit.typeregistry;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Encapsulates a type in the type registry, roughly defined as a set of
@@ -16,6 +19,7 @@ public class TypeDefinition {
 	/**
 	 * PID of the type.
 	 */
+	@JsonProperty("identifier")
 	protected String identifier;
 
 	/**
@@ -23,16 +27,31 @@ public class TypeDefinition {
 	 */
 	protected HashMap<String, PropertyDefinitionParameters> properties;
 
-	protected String name;
+	@JsonProperty("explanationOfUse")
+	protected String explanationOfUse;
+	
+	@JsonProperty("description")
 	protected String description;
 
-	public TypeDefinition(String identifier, String name, String description) {
+	public TypeDefinition(String identifier, String explanationOfUse, String description) {
 		this.identifier = identifier;
-		this.name = name;
+		this.explanationOfUse = explanationOfUse;
 		this.description = description;
 		this.properties = new HashMap<String, PropertyDefinitionParameters>();
 	}
 
+	@JsonCreator
+	public TypeDefinition(@JsonProperty("identifier") String identifier, @JsonProperty("explanationOfUse") String explanationOfUse, @JsonProperty("description") String description,
+			@JsonProperty("mandatoryProperties") Collection<String> mandatoryProperties, @JsonProperty("optionalProperties") Collection<String> optionalProperties) {
+		this.identifier = identifier;
+		this.explanationOfUse = explanationOfUse;
+		this.description = description;
+		this.properties = new HashMap<String, PropertyDefinitionParameters>();
+		for (String p : mandatoryProperties) addProperty(p, true);
+		for (String p : optionalProperties) addProperty(p, false);
+	}
+	
+	
 	public void addProperty(String propertyIdentifier, boolean mandatory) {
 		properties.put(propertyIdentifier, new PropertyDefinitionParameters(mandatory));
 	}
@@ -48,6 +67,7 @@ public class TypeDefinition {
 		return new HashSet<String>(properties.keySet());
 	}
 
+	@JsonIgnore
 	private Set<String> getProperties(boolean mandatory) {
 		Set<String> result = new HashSet<>();
 		for (String pd : properties.keySet()) {
@@ -62,6 +82,7 @@ public class TypeDefinition {
 	 * 
 	 * @return a set of properties
 	 */
+	@JsonProperty("mandatoryProperties")
 	public Set<String> getMandatoryProperties() {
 		return getProperties(true);
 	}
@@ -71,6 +92,7 @@ public class TypeDefinition {
 	 * 
 	 * @return a set of properties
 	 */
+	@JsonProperty("optionalProperties")
 	public Set<String> getOptionalProperties() {
 		return getProperties(false);
 	}

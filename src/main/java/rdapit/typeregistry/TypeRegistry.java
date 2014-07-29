@@ -121,19 +121,13 @@ public class TypeRegistry implements ITypeRegistry {
 		if (rootNode.get("code").asInt() != 200)
 			return null;
 		JsonNode entry = rootNode.get("extras").get("data");
-		String typeName = "";
-		String description = "";
 		Map<String, Boolean> properties = new HashMap<>();
 		if (entry.has("key_value")) {
 			for (JsonNode entryKV : entry.get("key_value")) {
 				String key = entryKV.get("key").asText();
-				if (key.equalsIgnoreCase("name"))
-					typeName = entryKV.get("val").asText();
-				else if (key.equalsIgnoreCase(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY) && !entryKV.get("val").asText().equalsIgnoreCase("TYPE_DEFINITION"))
+				if (key.equalsIgnoreCase(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY) && !entryKV.get("val").asText().equalsIgnoreCase("TYPE_DEFINITION"))
 					// this is not a type record!
 					return null;
-				else if (key.equalsIgnoreCase("description"))
-					description = entryKV.get("val").asText();
 				else if (key.equalsIgnoreCase("property")) {
 					// This value is a small json snippet with the property ID
 					// and a mandatory flag
@@ -142,7 +136,9 @@ public class TypeRegistry implements ITypeRegistry {
 				}
 			}
 		}
-		TypeDefinition result = new TypeDefinition(entry.get("ID").asText(), typeName, description);
+		String typeUseExpl = entry.get("explanation_of_use").asText();
+		String description = entry.get("human_description").asText();
+		TypeDefinition result = new TypeDefinition(entry.get("ID").asText(), typeUseExpl, description);
 		// add properties
 		for (String pd : properties.keySet())
 			result.addProperty(pd, properties.get(pd));
