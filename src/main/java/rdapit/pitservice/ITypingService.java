@@ -82,8 +82,35 @@ public interface ITypingService extends IIdentifierSystem {
 	 *         given PID that are also specified by the type (mandatory or
 	 *         optional). If the pid is not registered, the method returns null.
 	 * @throws IOException
-	 * @throws InconsistentRecordsException 
+	 * @throws InconsistentRecordsException
 	 */
 	public PIDInformation queryByType(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException, InconsistentRecordsException;
+
+	/**
+	 * Same as {@link queryByType}, but also performs a type conformance check.
+	 * The result of the check will be available from the PID information record
+	 * returned.
+	 * 
+	 * @param pid
+	 * @param typeIdentifier
+	 * @param includePropertyNames
+	 * @return
+	 * @throws IOException
+	 * @throws InconsistentRecordsException
+	 */
+	public PIDInformation queryByTypeWithConformance(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException,
+			InconsistentRecordsException;
+
+	/**
+	 * Determines whether the given identifier references a simple object, a
+	 * property, a type etc. Note that the method may contact a remote registry
+	 * to answer the request since information may not be encoded in the
+	 * identifier string.
+	 * 
+	 * @param identifier
+	 * @return a value of {@link EntityClass}
+	 * @throws IOException
+	 */
+	public EntityClass determineEntityClass(String identifier) throws IOException;
 
 }

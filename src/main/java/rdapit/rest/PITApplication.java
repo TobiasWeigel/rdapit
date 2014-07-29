@@ -33,7 +33,7 @@ public class PITApplication extends ResourceConfig {
 			IIdentifierSystem identifierSystem = new HandleSystemRESTAdapter(properties.getProperty("pidsystem.handle.baseURI"),
 					properties.getProperty("pidsystem.handle.userName"), properties.getProperty("pidsystem.handle.userPassword"),
 					properties.getProperty("pidsystem.handle.generatorPrefix"));
-			ITypeRegistry typeRegistry = new TypeRegistry(properties.getProperty("typeregistry.baseURI"));
+			ITypeRegistry typeRegistry = new TypeRegistry(properties.getProperty("typeregistry.baseURI"), properties.getProperty("typeregistry.identifierPrefix"));
 			TypingService typingService = new TypingService(identifierSystem, typeRegistry);
 			ApplicationContext appContext = new ApplicationContext(typingService);
 		}

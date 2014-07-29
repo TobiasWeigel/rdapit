@@ -3,6 +3,8 @@ package rdapit.pitservice;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.ws.rs.core.Response;
+
 import rdapit.pidsystem.IIdentifierSystem;
 import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.PropertyDefinition;
@@ -83,7 +85,7 @@ public class TypingService implements ITypingService {
 	@Override
 	public Object genericResolve(String pid) throws IOException {
 		// ask identifier system whether this is a type registry record
-		boolean istypereg = identifierSystem.isTypeRegistryPID(pid);
+		boolean istypereg = typeRegistry.isTypeRegistryPID(pid);
 		if (istypereg) {
 			Object obj = typeRegistry.query(pid);
 			if (obj == null) {
@@ -100,12 +102,6 @@ public class TypingService implements ITypingService {
 			// this is a generic PID record (or unresolvable)
 			return queryAllProperties(pid);
 		}
-	}
-
-	@Override
-	public boolean isTypeRegistryPID(String pid) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 	@Override
@@ -155,6 +151,7 @@ public class TypingService implements ITypingService {
 		return result;
 	}
 
+	@Override
 	public PIDInformation queryByTypeWithConformance(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException,
 			InconsistentRecordsException {
 		TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
@@ -166,6 +163,15 @@ public class TypingService implements ITypingService {
 			enrichPIDInformationRecord(pidInfo);
 		pidInfo.checkTypeConformance(typeDef);
 		return pidInfo;
+	}
+
+	@Override
+	public EntityClass determineEntityClass(String identifier) throws IOException {
+		if (typeRegistry.isTypeRegistryPID(identifier)) {
+			// need to ask type registry about it
+			return typeRegistry.determineEntityClass(identifier);
+		}
+		else return EntityClass.OBJECT;
 	}
 
 }

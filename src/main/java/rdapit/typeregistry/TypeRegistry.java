@@ -13,19 +13,24 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
+import rdapit.pitservice.EntityClass;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TypeRegistry implements ITypeRegistry {
 
 	protected final URI baseURI;
+	protected String identifierPrefix;
+
 	protected Client client;
 	protected WebTarget rootTarget;
 	protected WebTarget searchTarget;
 	protected WebTarget idTarget;
 
-	public TypeRegistry(String baseURI) {
+	public TypeRegistry(String baseURI, String identifierPrefix) {
 		this.baseURI = UriBuilder.fromUri(baseURI).build();
+		this.identifierPrefix = identifierPrefix;
 		client = ClientBuilder.newBuilder().build();
 		rootTarget = client.target(baseURI);
 		searchTarget = rootTarget.path("search").path("DataType");
@@ -124,7 +129,7 @@ public class TypeRegistry implements ITypeRegistry {
 				String key = entryKV.get("key").asText();
 				if (key.equalsIgnoreCase("name"))
 					typeName = entryKV.get("val").asText();
-				else if (key.equals(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY) && !entryKV.get("val").asText().equalsIgnoreCase("TYPE_DEFINITION"))
+				else if (key.equalsIgnoreCase(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY) && !entryKV.get("val").asText().equalsIgnoreCase("TYPE_DEFINITION"))
 					// this is not a type record!
 					return null;
 				else if (key.equalsIgnoreCase("description"))
@@ -159,6 +164,35 @@ public class TypeRegistry implements ITypeRegistry {
 	public Object query(String identifier) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("not implemented yet");
+	}
+
+	@Override
+	public EntityClass determineEntityClass(String identifier) throws IOException {
+		// retrieve full record and analyze marker field
+		String response = idTarget.resolveTemplate("id", identifier).request(MediaType.APPLICATION_JSON).get(String.class);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = mapper.readTree(response);
+		if (rootNode.get("code").asInt() != 200)
+			return null;
+		JsonNode entry = rootNode.get("extras").get("data");
+		if (entry.has("key_value")) {
+			for (JsonNode entryKV : entry.get("key_value")) {
+				if (entryKV.get("key").asText().equalsIgnoreCase(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY)) {
+					String v = entryKV.get("val").asText();
+					if (v.equalsIgnoreCase("PROPERTY_DEFINITION")) 
+						return EntityClass.PROPERTY;
+					if (v.equalsIgnoreCase("TYPE_DEFINITION")) 
+						return EntityClass.TYPE;
+					throw new IllegalStateException("Unknown value for "+PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY+" in record "+identifier+": "+v);
+				}
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isTypeRegistryPID(String pid) {
+		return pid.startsWith(identifierPrefix);
 	}
 	
 }

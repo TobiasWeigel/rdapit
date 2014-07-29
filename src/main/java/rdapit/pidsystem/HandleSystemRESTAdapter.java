@@ -184,12 +184,6 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public boolean isTypeRegistryPID(String pid) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented");
-	}
-
-	@Override
 	public PIDInformation queryAllProperties(String pid) throws IOException {
 		Response resp = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get();
 		if (resp.getStatus() != 200)

@@ -55,11 +55,6 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	}
 
 	@Override
-	public boolean isTypeRegistryPID(String pid) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public PIDInformation queryAllProperties(String pid) throws IOException {
 		Map<String, String> map = storage.get(pid);
 		PIDInformation result = new PIDInformation();

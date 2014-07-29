@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import rdapit.pidsystem.HandleSystemRESTAdapter;
 import rdapit.pidsystem.IIdentifierSystem;
+import rdapit.pitservice.EntityClass;
 import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.rest.ApplicationContext;
@@ -31,6 +32,7 @@ public class RESTServiceTest extends JerseyTest {
 		WebTarget rootTarget = client().target(baseURI).path("pitapi");
 		WebTarget pidResolveTarget = rootTarget.path("pid").path("{id}");
 		WebTarget propertyResolveTarget = rootTarget.path("property").path("{id}");
+		WebTarget peekTarget = rootTarget.path("peek").path("{id}");
 		/* Simple tests */
 		Response resp = rootTarget.path("ping").request().get();
 		assertEquals(200, resp.getStatus());
@@ -54,6 +56,13 @@ public class RESTServiceTest extends JerseyTest {
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("type", "11043.4/test_type").request().get();
 		/* Query prop definition */
 		assertEquals(200, propertyResolveTarget.resolveTemplate("id", "11314.2/56bb4d16b75ae50015b3ed634bbb519f").request().get().getStatus());
+		/* Peek tests */
+		resp = peekTarget.resolveTemplate("id", "11314.2/2f305c8320611911a9926bb58dfad8c9").request().get();
+		assertEquals(200, resp.getStatus());
+		assertEquals(EntityClass.PROPERTY, resp.readEntity(EntityClass.class));
+		resp = peekTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
+		assertEquals(200, resp.getStatus());
+		assertEquals(EntityClass.OBJECT, resp.readEntity(EntityClass.class));
 	}
 
 	@Test
@@ -86,7 +95,7 @@ public class RESTServiceTest extends JerseyTest {
 	protected Application configure() {
 		try {
 			IIdentifierSystem ids = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
-			TypeRegistry tr = new TypeRegistry("http://typeregistry.org/registrar");
+			TypeRegistry tr = new TypeRegistry("http://typeregistry.org/registrar", "11314.2");
 			new ApplicationContext(new TypingService(ids, tr));
 			return new PITApplication();
 		} catch (Exception exc) {

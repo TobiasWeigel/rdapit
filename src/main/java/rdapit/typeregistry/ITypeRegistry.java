@@ -3,6 +3,8 @@ package rdapit.typeregistry;
 import java.io.IOException;
 import java.util.List;
 
+import rdapit.pitservice.EntityClass;
+
 /**
  * Main abstraction interface towards the type registry. Contains all methods
  * required from the registry by the core services.
@@ -74,5 +76,26 @@ public interface ITypeRegistry {
 	 *         of PropertyDefinition or TypeDefinition.
 	 */
 	public Object query(String identifier);
+
+	/**
+	 * Determines whether the given PID is an identifier in the type registry.
+	 * Note that a positive answer does not necessarily mean the identifier is
+	 * registered and resolvable.
+	 * 
+	 * @param pid
+	 * @return true if the PID is generally acceptable for the type registry,
+	 *         but may still be unregistered.
+	 */
+	public boolean isTypeRegistryPID(String pid);
+
+	/**
+	 * Determines whether the given identifier references a property or type.
+	 * 
+	 * @param identifier
+	 * @return a value of {@link EntityClass}
+	 * @throws IOException
+	 *             on communication errors with a remote registry
+	 */
+	public EntityClass determineEntityClass(String identifier) throws IOException;
 
 }

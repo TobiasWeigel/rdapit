@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import rdapit.pitservice.EntityClass;
 import rdapit.pitservice.InconsistentRecordsException;
 import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
@@ -147,13 +148,16 @@ public class TypingRESTResource {
 	 * property, type, ...).
 	 * 
 	 * @param identifier
-	 * @return
+	 * @return a simple JSON object with the kind of entity the identifier
+	 *         points to.
 	 * @throws IOException
 	 */
+	@GET
 	@Path("/peek/{identifier}")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response peekIdentifier(@PathParam("identifier") String identifier) throws IOException {
-		// TODO continue here
-		throw new UnsupportedOperationException("not implemented yet");
+		EntityClass result = typingService.determineEntityClass(identifier);
+		return Response.status(200).entity(result).build();
 	}
 
 	/**

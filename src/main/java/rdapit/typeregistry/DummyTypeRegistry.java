@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import rdapit.pitservice.EntityClass;
+
 /**
  * Mock-up for the type registry. Stores information locally. Used for unit testing.
  * 
@@ -64,6 +66,18 @@ public class DummyTypeRegistry implements ITypeRegistry {
 	public Object query(String identifier) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public EntityClass determineEntityClass(String identifier) throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isTypeRegistryPID(String pid) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
