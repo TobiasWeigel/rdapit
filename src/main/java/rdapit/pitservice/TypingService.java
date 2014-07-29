@@ -1,7 +1,6 @@
 package rdapit.pitservice;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import rdapit.pidsystem.IIdentifierSystem;
@@ -41,7 +40,7 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
+	public PIDInformation queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
 		return identifierSystem.queryByType(pid, typeDefinition);
 	}
 
@@ -67,7 +66,7 @@ public class TypingService implements ITypingService {
 		if (typeDef == null)
 			throw new IllegalArgumentException("Unknown type: " + typeIdentifier);
 		// resolve PID
-		Map<String, String> props = identifierSystem.queryAllProperties(pid);
+		PIDInformation pidInfo = identifierSystem.queryAllProperties(pid);
 		/*
 		 * Now go through all mandatory properties of the type and check whether
 		 * they are in the pid data. Remember: both the keys of the pid data map
@@ -75,7 +74,7 @@ public class TypingService implements ITypingService {
 		 * (not names)!
 		 */
 		for (String p : typeDef.getMandatoryProperties()) {
-			if (!props.containsKey(p))
+			if (!pidInfo.hasProperty(p))
 				return false;
 		}
 		return true;
@@ -110,8 +109,15 @@ public class TypingService implements ITypingService {
 	}
 
 	@Override
-	public Map<String, String> queryAllProperties(String pid) throws IOException {
+	public PIDInformation queryAllProperties(String pid) throws IOException {
 		return identifierSystem.queryAllProperties(pid);
+	}
+
+	public PIDInformation queryAllProperties(String pid, boolean includePropertyNames) throws IOException, InconsistentRecordsException {
+		PIDInformation pidInfo = identifierSystem.queryAllProperties(pid);
+		if (includePropertyNames)
+			enrichPIDInformationRecord(pidInfo);
+		return pidInfo;
 	}
 
 	@Override
@@ -120,34 +126,46 @@ public class TypingService implements ITypingService {
 		// query type registry
 		PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyIdentifier);
 		if (propDef != null) {
-			pidInfo.addProperty(propDef.getName(), identifierSystem.queryProperty(pid, propDef)); 
+			pidInfo.addProperty(propertyIdentifier, propDef.getName(), identifierSystem.queryProperty(pid, propDef));
 			return pidInfo;
 		}
 		return null;
 	}
 
+	private void enrichPIDInformationRecord(PIDInformation pidInfo) throws InconsistentRecordsException, IOException {
+		// enrich record by querying type registry for all property definitions
+		// to get the property names
+		for (String propertyIdentifier : pidInfo.getPropertyIdentifiers()) {
+			PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyIdentifier);
+			if (propDef == null)
+				throw new InconsistentRecordsException("No registered property definition available for property with ID " + propertyIdentifier);
+			pidInfo.setPropertyName(propertyIdentifier, propDef.getName());
+		}
+	}
+
 	@Override
-	public Map<String, String> queryByType(String pid, String typeIdentifier) throws IOException {
+	public PIDInformation queryByType(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException, InconsistentRecordsException {
 		TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
 		if (typeDef == null)
 			return null;
 		// now query PID record
-		Map<String, String> result = identifierSystem.queryByType(pid, typeDef);
+		PIDInformation result = identifierSystem.queryByType(pid, typeDef);
+		if (includePropertyNames)
+			enrichPIDInformationRecord(result);
 		return result;
 	}
-	
-	public PIDInformation queryByTypeWithConformance(String pid, String typeIdentifier) throws IOException {
+
+	public PIDInformation queryByTypeWithConformance(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException,
+			InconsistentRecordsException {
 		TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
 		if (typeDef == null)
 			return null;
 		// now query PID record
-		Map<String, String> values = identifierSystem.queryByType(pid, typeDef);
-		PIDInformation pidInfo = new PIDInformation(values);
+		PIDInformation pidInfo = identifierSystem.queryByType(pid, typeDef);
+		if (includePropertyNames)
+			enrichPIDInformationRecord(pidInfo);
 		pidInfo.checkTypeConformance(typeDef);
 		return pidInfo;
 	}
-	
-		
-	
 
 }

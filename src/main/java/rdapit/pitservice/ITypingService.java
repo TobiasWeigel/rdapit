@@ -74,12 +74,16 @@ public interface ITypingService extends IIdentifierSystem {
 	 * @param pid
 	 * @param typeIdentifier
 	 *            a type identifier, not a name
-	 * @return a map with property identifiers mapping to values. Contains all
-	 *         property values present in the record of the given PID that are
-	 *         also specified by the type (mandatory or optional). If the pid is
-	 *         not registered, the method returns null.
+	 * @param includePropertyNames
+	 *            if true, the method will also return property names at
+	 *            additional call costs.
+	 * @return a PID information record with property identifiers mapping to
+	 *         values. Contains all property values present in the record of the
+	 *         given PID that are also specified by the type (mandatory or
+	 *         optional). If the pid is not registered, the method returns null.
 	 * @throws IOException
+	 * @throws InconsistentRecordsException 
 	 */
-	public Map<String, String> queryByType(String pid, String typeIdentifier) throws IOException;
+	public PIDInformation queryByType(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException, InconsistentRecordsException;
 
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import rdapit.pitservice.PIDInformation;
 import rdapit.typeregistry.ITypeRegistry;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
@@ -37,15 +38,15 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	}
 
 	@Override
-	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
+	public PIDInformation queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
 		Map<String, String> map = storage.get(pid);
-		Map<String, String> result = new HashMap<>();
+		PIDInformation pidinfo = new PIDInformation();
 		for (String propID : typeDefinition.getAllProperties()) {
 			String s = map.get(propID);
 			if (s != null)
-				result.put(propID, s);
+				pidinfo.addProperty(propID, "", s);
 		}
-		return result;
+		return pidinfo;
 	}
 
 	@Override
@@ -59,9 +60,13 @@ public class DummyIdentifierSystem implements IIdentifierSystem {
 	}
 
 	@Override
-	public Map<String, String> queryAllProperties(String pid) throws IOException {
+	public PIDInformation queryAllProperties(String pid) throws IOException {
 		Map<String, String> map = storage.get(pid);
-		return map;
+		PIDInformation result = new PIDInformation();
+		for (String p : map.keySet()) {
+			result.addProperty(p, "", map.get(p));
+		}
+		return result;
 	}
 
 }

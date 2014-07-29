@@ -46,7 +46,7 @@ public class RESTServiceTest extends JerseyTest {
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
 		PIDInformation pidrec = resp.readEntity(PIDInformation.class);
-		assertEquals("http://www.example.com", pidrec.getPropertyValues().get("URL"));
+		assertEquals("http://www.example.com", pidrec.getPropertyValue("URL"));
 		/* Query single property */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("filter_by_property", "11314.2/2f305c8320611911a9926bb58dfad8c9").request().get();
 		assertEquals(200, resp.getStatus());
@@ -72,8 +72,9 @@ public class RESTServiceTest extends JerseyTest {
 		try {
 			/* Read properties */
 			response = pidResolveTarget.resolveTemplate("id", pid).request().get();
+			assertEquals(response.getStatus(), 200);
 			PIDInformation pidinfo = response.readEntity(PIDInformation.class);
-			assertEquals(pidinfo.getPropertyValues().get("URL"), properties.get("URL"));
+			assertEquals(pidinfo.getPropertyValue("URL"), properties.get("URL"));
 		} finally {
 			/* Delete PID */
 			response = pidResolveTarget.resolveTemplate("id", pid).request().delete();

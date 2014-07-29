@@ -30,6 +30,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.internal.util.Base64;
 
+import rdapit.pitservice.PIDInformation;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
 
@@ -163,17 +164,17 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public Map<String, String> queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
-		Map<String, String> props = queryAllProperties(pid);
+	public PIDInformation queryByType(String pid, TypeDefinition typeDefinition) throws IOException {
+		PIDInformation allProps = queryAllProperties(pid);
 		// only return properties listed in the type def
-		Map<String, String> result = new HashMap<String, String>();
+		PIDInformation pidInfo = new PIDInformation();
 		Set<String> typeProps = typeDefinition.getAllProperties();
-		for (String propID: props.keySet()) {
+		for (String propID: allProps.getPropertyIdentifiers()) {
 			if (typeProps.contains(propID)) {
-				result.put(propID, props.get(propID));
+				pidInfo.addProperty(propID, "", allProps.getPropertyValue(propID));
 			}
 		}
-		return result;
+		return pidInfo;
 	}
 
 	@Override
@@ -189,19 +190,19 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	}
 
 	@Override
-	public Map<String, String> queryAllProperties(String pid) throws IOException {
+	public PIDInformation queryAllProperties(String pid) throws IOException {
 		Response resp = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).get();
 		if (resp.getStatus() != 200)
 			return null;
 		ObjectMapper mapper = new ObjectMapper();
 		JsonNode root = mapper.readTree(resp.readEntity(String.class));
-		Map<String, String> result = new HashMap<>();
+		PIDInformation result = new PIDInformation();
 		for (JsonNode valueNode : root.get("values")) {
 			if (!(valueNode.get("data").get("format").asText().equals("string") || valueNode.get("data").get("format").asText().equals("base64") || valueNode
 					.get("data").get("format").asText().equals("hex")))
 				continue;
 			// index is ignored..
-			result.put(valueNode.get("type").asText(), valueNode.get("data").get("value").asText());
+			result.addProperty(valueNode.get("type").asText(), "", valueNode.get("data").get("value").asText());
 		}
 		return result;
 	}

@@ -17,6 +17,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import rdapit.pitservice.InconsistentRecordsException;
 import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.typeregistry.PropertyDefinition;
@@ -142,6 +143,20 @@ public class TypingRESTResource {
 	}
 
 	/**
+	 * Queries what kind of entity an identifier will point to (generic object,
+	 * property, type, ...).
+	 * 
+	 * @param identifier
+	 * @return
+	 * @throws IOException
+	 */
+	@Path("/peek/{identifier}")
+	public Response peekIdentifier(@PathParam("identifier") String identifier) throws IOException {
+		// TODO continue here
+		throw new UnsupportedOperationException("not implemented yet");
+	}
+
+	/**
 	 * Sophisticated GET method to return all or some properties of an
 	 * identifier.
 	 * 
@@ -162,32 +177,44 @@ public class TypingRESTResource {
 	 *            return 404. The result will also include a boolean value
 	 *            <i>typeConformance</i> that is only true if all mandatory
 	 *            properties of the type are present in the PID record.
+	 * @param includePropertyNames
+	 *            Optional. If set to true, the method will also provide
+	 *            property names in addition to identifiers. Note that this is
+	 *            more expensive due to extra requests sent to the type
+	 *            registry.
 	 * @return if the request is processed properly, the method will return 200
-	 *         OK and a JSON object that contains a map of strings to strings
-	 *         from property identifiers (not names!) to values, named 'values',
-	 *         and optional meta information. The method will return 404 if the
-	 *         identifier is not known.
+	 *         OK and a JSON object that contains a map of property identifiers
+	 *         to property names (which may be empty) and values. It may also
+	 *         contain optional meta information, e.g. conformance indications.
+	 *         The method will return 404 if the identifier is not known.
 	 * @throws IOException
+	 *             on communication errors with identifier system or type
+	 *             registry
+	 * @throws InconsistentRecordsException
+	 *             if records in the identifier system and/or type registry are
+	 *             inconsistent, e.g. use property or type identifiers that are
+	 *             not registered
 	 */
 	@GET
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier,
-			@QueryParam("filter_by_type") @DefaultValue("") String typeIdentifier) throws IOException {
+			@QueryParam("filter_by_type") @DefaultValue("") String typeIdentifier,
+			@QueryParam("include_property_names") @DefaultValue("false") boolean includePropertyNames) throws IOException, InconsistentRecordsException {
 		if (!typeIdentifier.isEmpty()) {
 			// Filter by type ID
 			if (!propertyIdentifier.isEmpty())
 				return Response.status(400).entity("Filtering by both type and property is not supported!").build();
-			PIDInformation result = typingService.queryByTypeWithConformance(identifier, typeIdentifier);
+			PIDInformation result = typingService.queryByTypeWithConformance(identifier, typeIdentifier, includePropertyNames);
 			if (result == null)
 				return Response.status(404).entity("Type not registered in the registry").build();
 			return Response.status(200).entity(result).build();
 		} else if (propertyIdentifier.isEmpty()) {
 			// No filtering - return all properties
-			Map<String, String> result = typingService.queryAllProperties(identifier);
+			PIDInformation result = typingService.queryAllProperties(identifier, includePropertyNames);
 			if (result == null)
 				return Response.status(404).entity("Identifier not registered").build();
-			return Response.status(200).entity(new PIDInformation(result)).build();
+			return Response.status(200).entity(result).build();
 		} else {
 			// Filter by property ID
 			PIDInformation result = typingService.queryProperty(identifier, propertyIdentifier);
