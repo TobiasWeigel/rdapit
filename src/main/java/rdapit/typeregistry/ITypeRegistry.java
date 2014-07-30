@@ -1,6 +1,7 @@
 package rdapit.typeregistry;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,18 +35,6 @@ public interface ITypeRegistry {
 	 *             on communication errors with a remote registry
 	 */
 	public List<PropertyDefinition> queryPropertyDefinitionByName(String propertyName) throws IOException;
-
-	/**
-	 * Registers a new property definition in the type registry.
-	 * 
-	 * @param propertyDefinition
-	 *            The property definition to register. This also includes the
-	 *            PID of the new property definition. If there is already a
-	 *            property definition with this PID, it will be overwritten.
-	 * @throws IOException
-	 *             on communication errors with a remote registry
-	 */
-	public void createPropertyDefinition(PropertyDefinition propertyDefinition) throws IOException;
 
 	/**
 	 * Removes the property definition with given PID. If there is no definition

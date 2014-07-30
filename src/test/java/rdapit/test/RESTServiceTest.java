@@ -2,7 +2,9 @@ package rdapit.test;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.ws.rs.client.Entity;
@@ -15,15 +17,18 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Test;
 
 import rdapit.pidsystem.HandleSystemRESTAdapter;
-import rdapit.pidsystem.IIdentifierSystem;
 import rdapit.pitservice.EntityClass;
 import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.rest.ApplicationContext;
 import rdapit.rest.PITApplication;
+import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeRegistry;
 
 public class RESTServiceTest extends JerseyTest {
+	
+	private TypeRegistry typeRegistry;
+	private HandleSystemRESTAdapter identifierSystem;
 
 	@Test
 	public void testResolve() {
@@ -90,13 +95,13 @@ public class RESTServiceTest extends JerseyTest {
 			assertEquals(200, response.getStatus());
 		}
 	}
-
+	
 	@Override
 	protected Application configure() {
 		try {
-			IIdentifierSystem ids = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
-			TypeRegistry tr = new TypeRegistry("http://typeregistry.org/registrar", "11314.2");
-			new ApplicationContext(new TypingService(ids, tr));
+			identifierSystem = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
+			typeRegistry = new TypeRegistry("http://typeregistry.org/registrar", "11314.2");
+			new ApplicationContext(new TypingService(identifierSystem, typeRegistry));
 			return new PITApplication();
 		} catch (Exception exc) {
 			throw new IllegalStateException("Could not initialize application: ", exc);
