@@ -23,6 +23,7 @@ import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
+import rdapit.typeregistry.TypeRegistry;
 
 /**
  * This is the main class for REST web service interaction. The class offers

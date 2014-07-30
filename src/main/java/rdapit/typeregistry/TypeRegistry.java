@@ -15,6 +15,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import rdapit.pitservice.EntityClass;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,7 +31,7 @@ public class TypeRegistry implements ITypeRegistry {
 
 	public TypeRegistry(String baseURI, String identifierPrefix) {
 		this.baseURI = UriBuilder.fromUri(baseURI).build();
-		this.identifierPrefix = identifierPrefix;
+		this.identifierPrefix = identifierPrefix.trim();
 		client = ClientBuilder.newBuilder().build();
 		rootTarget = client.target(baseURI);
 		searchTarget = rootTarget.path("search").path("DataType");
@@ -44,6 +45,10 @@ public class TypeRegistry implements ITypeRegistry {
 		JsonNode rootNode = mapper.readTree(response);
 		if (rootNode.get("code").asInt() != 200)
 			return null;
+		return constructPropertyDefinition(rootNode);
+	}
+	
+	private PropertyDefinition constructPropertyDefinition(JsonNode rootNode) {
 		JsonNode entry = rootNode.get("extras").get("data");
 		String propName = "";
 		String valuetype = "";
@@ -66,8 +71,7 @@ public class TypeRegistry implements ITypeRegistry {
 				
 			}
 		}
-		PropertyDefinition result = new PropertyDefinition(entry.get("ID").asText(), propName, valuetype, namespace, description);
-		return result;
+		return new PropertyDefinition(entry.get("ID").asText(), propName, valuetype, namespace, description);
 	}
 
 	@Override
@@ -112,14 +116,8 @@ public class TypeRegistry implements ITypeRegistry {
 		throw new UnsupportedOperationException("not implemented yet");
 		// TODO: also store PIT.Construct field, PIT.Version
 	}
-
-	@Override
-	public TypeDefinition queryTypeDefinition(String typeIdentifier) throws IOException {
-		String response = idTarget.resolveTemplate("id", typeIdentifier).request(MediaType.APPLICATION_JSON).get(String.class);
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode rootNode = mapper.readTree(response);
-		if (rootNode.get("code").asInt() != 200)
-			return null;
+	
+	private TypeDefinition constructTypeDefinition(JsonNode rootNode) throws JsonProcessingException, IOException {
 		JsonNode entry = rootNode.get("extras").get("data");
 		Map<String, Boolean> properties = new HashMap<>();
 		if (entry.has("key_value")) {
@@ -131,6 +129,7 @@ public class TypeRegistry implements ITypeRegistry {
 				else if (key.equalsIgnoreCase("property")) {
 					// This value is a small json snippet with the property ID
 					// and a mandatory flag
+					ObjectMapper mapper = new ObjectMapper();
 					JsonNode propNode = mapper.readTree(entryKV.get("val").asText());
 					properties.put(propNode.get("id").asText(), propNode.get("mandatory").asBoolean());
 				}
@@ -143,6 +142,17 @@ public class TypeRegistry implements ITypeRegistry {
 		for (String pd : properties.keySet())
 			result.addProperty(pd, properties.get(pd));
 		return result;
+		
+	}
+
+	@Override
+	public TypeDefinition queryTypeDefinition(String typeIdentifier) throws IOException {
+		String response = idTarget.resolveTemplate("id", typeIdentifier).request(MediaType.APPLICATION_JSON).get(String.class);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = mapper.readTree(response);
+		if (rootNode.get("code").asInt() != 200)
+			return null;
+		return constructTypeDefinition(rootNode); 
 	}
 
 	@Override
@@ -157,9 +167,39 @@ public class TypeRegistry implements ITypeRegistry {
 	}
 
 	@Override
-	public Object query(String identifier) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("not implemented yet");
+	public Object query(String identifier) throws JsonProcessingException, IOException {
+		String response = idTarget.resolveTemplate("id", identifier).request(MediaType.APPLICATION_JSON).get(String.class);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode rootNode = mapper.readTree(response);
+		if (rootNode.get("code").asInt() != 200)
+			return null;
+		EntityClass entityClass = determineEntityClass(rootNode);
+		if (entityClass == null)
+			return null;
+		if (entityClass == EntityClass.PROPERTY)
+			return constructPropertyDefinition(rootNode);
+		if (entityClass == EntityClass.TYPE)
+			return constructTypeDefinition(rootNode);
+		throw new IllegalStateException("Invalid EntityClass enum value: "+entityClass);
+	}
+	
+	private EntityClass determineEntityClass(JsonNode rootNode) {
+		JsonNode entry = rootNode.get("extras").get("data");
+		if (entry.has("key_value")) {
+			for (JsonNode entryKV : entry.get("key_value")) {
+				if (entryKV.get("key").asText().equalsIgnoreCase(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY)) {
+					String v = entryKV.get("val").asText();
+					if (v.equalsIgnoreCase("PROPERTY_DEFINITION")) 
+						return EntityClass.PROPERTY;
+					if (v.equalsIgnoreCase("TYPE_DEFINITION")) 
+						return EntityClass.TYPE;
+					String id = "???";
+					if (entry.get("ID") != null) id = entry.get("ID").asText();
+					throw new IllegalStateException("Unknown value for "+PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY+" in record "+id+": "+v);
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -170,25 +210,16 @@ public class TypeRegistry implements ITypeRegistry {
 		JsonNode rootNode = mapper.readTree(response);
 		if (rootNode.get("code").asInt() != 200)
 			return null;
-		JsonNode entry = rootNode.get("extras").get("data");
-		if (entry.has("key_value")) {
-			for (JsonNode entryKV : entry.get("key_value")) {
-				if (entryKV.get("key").asText().equalsIgnoreCase(PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY)) {
-					String v = entryKV.get("val").asText();
-					if (v.equalsIgnoreCase("PROPERTY_DEFINITION")) 
-						return EntityClass.PROPERTY;
-					if (v.equalsIgnoreCase("TYPE_DEFINITION")) 
-						return EntityClass.TYPE;
-					throw new IllegalStateException("Unknown value for "+PropertyDefinition.IDENTIFIER_PIT_MARKER_PROPERTY+" in record "+identifier+": "+v);
-				}
-			}
-		}
-		return null;
+		return determineEntityClass(rootNode);
 	}
 
 	@Override
 	public boolean isTypeRegistryPID(String pid) {
 		return pid.startsWith(identifierPrefix);
+	}
+	
+	public String getIdentifierPrefix() {
+		return identifierPrefix;
 	}
 	
 }

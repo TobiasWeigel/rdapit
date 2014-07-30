@@ -3,6 +3,8 @@ package rdapit.typeregistry;
 import java.io.IOException;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import rdapit.pitservice.EntityClass;
 
 /**
@@ -74,8 +76,10 @@ public interface ITypeRegistry {
 	 * @param identifier
 	 * @return null if there is no object with given identifier, or an instance
 	 *         of PropertyDefinition or TypeDefinition.
+	 * @throws IOException 
+	 * @throws JsonProcessingException 
 	 */
-	public Object query(String identifier);
+	public Object query(String identifier) throws JsonProcessingException, IOException;
 
 	/**
 	 * Determines whether the given PID is an identifier in the type registry.

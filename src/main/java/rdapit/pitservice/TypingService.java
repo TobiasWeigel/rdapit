@@ -173,5 +173,13 @@ public class TypingService implements ITypingService {
 		}
 		else return EntityClass.OBJECT;
 	}
+	
+	public ITypeRegistry getTypeRegistry() {
+		return typeRegistry;
+	}
+	
+	public IIdentifierSystem getIdentifierSystem() {
+		return identifierSystem;
+	}
 
 }
