@@ -88,14 +88,15 @@ public interface ITypingService extends IIdentifierSystem {
 	public PIDInformation queryByType(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException, InconsistentRecordsException;
 
 	/**
-	 * Same as {@link queryByType}, but also performs a type conformance check.
+	 * Same as {@link #queryByType}, but also performs a type conformance check.
 	 * The result of the check will be available from the PID information record
 	 * returned.
 	 * 
 	 * @param pid
 	 * @param typeIdentifier
 	 * @param includePropertyNames
-	 * @return
+	 * @return a PID information record with property information and
+	 *         conformance check results.
 	 * @throws IOException
 	 * @throws InconsistentRecordsException
 	 */

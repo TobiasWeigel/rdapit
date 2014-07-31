@@ -18,6 +18,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import jersey.repackaged.com.google.common.collect.PeekingIterator;
 import rdapit.pitservice.EntityClass;
 import rdapit.pitservice.InconsistentRecordsException;
 import rdapit.pitservice.PIDInformation;
@@ -48,8 +49,9 @@ import rdapit.typeregistry.TypeDefinition;
  * 
  * <h4>Query properties of a pid</h4>
  * 
- * To query all properties, simply call {@link #resolvePID /pid}. Notice that
- * you must encode all forward slashes in the PID name (replace with %2F).<br/>
+ * To query all properties, simply call {@link #resolvePID /pid}. If the
+ * identifier contains a slash, this may be percent-encoded, though the
+ * prototype also tolerates path elements in the style of <i>prefix/suffix</i>.<br/>
  * An unsuccessful request will return a 404:
  * 
  * <pre>
@@ -64,22 +66,134 @@ import rdapit.typeregistry.TypeDefinition;
  * 
  * <pre>
  * $ curl http://localhost/pitapi/pid/11043.4%2FPITAPI_TEST1
- * {"11314.2/2f305c8320611911a9926bb58dfad8c9":"CC-BY","URL":"http://www.example.com"}
+ * {
+ *   "values": {
+ *       "11314.2/2f305c8320611911a9926bb58dfad8c9": {
+ *           "name": "",
+ *           "value": "CC-BY"
+ *       }
+ *   }
+ * }
  * </pre>
  * 
- * You can also query individual properties, either by their identifier or name.
- * Notice that querying by property name may fail because names are not unique:
- * The method will perform a search in the type registry which may produce
- * multiple results. <br/>
- * The following request queries a "license" property by its identifier and by
- * name:
+ * Note how the result does not provide the property's name. To resolve the
+ * name, the parameter <i>include_property_name</i> must be set which makes
+ * answering the request however more expensive.<br/>
+ * 
+ * The {@link #resolvePID /pid} method also supports HEAD requests for quick
+ * checks whether an identifier is registered.
+ * 
+ * <h4>Using filters</h4>
+ * 
+ * The pid query method also supports filters. This can be either a filter for a
+ * single property or one or several filters for types. Note that it is not
+ * possible to combine both property and type filters in a single request.<br/>
+ * 
+ * Querying a single property works by providing its identifier. If you do not
+ * know the identifier but e.g. only the property name (which is not unique),
+ * you will have to look at exemplary records or use the search facilities of
+ * the type registry to determine the identifier. <br/>
+ * The following request queries a "license" property by its identifier:
  * 
  * <pre>
- * $ curl http://localhost/pitapi/pid/11043.4%2FPITAPI_TEST1?property=11314.2%2F2f305c8320611911a9926bb58dfad8c9
- * CC-BY
- * $ curl http://localhost/pitapi/pid/11043.4%2FPITAPI_TEST1?property=license
- * CC-BY
+ * $ curl http://localhost/pitapi/pid/11043.4/PITAPI_TEST1?filter_by_property=11314.2%2F2f305c8320611911a9926bb58dfad8c9
  * </pre>
+ * 
+ * Type filtering is similar, but there can also be several type filters in the
+ * same request. This emulates a <i>profile</i> functionality where a profile is
+ * understood as a combination of several types: all properties are returned
+ * that are specified in any of the types (the selection is thus additive).<br/>
+ * Also note that filtering by type doubles as a <b>conformance check</b>, also
+ * for several given types. Note that the method will not fail upon conformance
+ * failure: If a type lists a mandatory property that is missing from the PID
+ * record, the method does not fail but provides simply as many property values
+ * as it can.<br/>
+ * An artificial example:
+ * 
+ * <pre>
+ * $ curl http://localhost/pitapi/pid/1234/5678?filter_by_type=my%2Ftype_1&filter_by_type=my%2Ftype_2
+ * {
+ *   "values": {
+ *       "11314.2/2f305c8320611911a9926bb58dfad8c9": {
+ *           "name": "",
+ *           "value": "CC-BY"
+ *       }
+ *   }
+ *   "conformance": {
+ *     "my/type1": true,
+ *     "my/type2": false
+ *   }
+ * }
+ * </pre>
+ * 
+ * Overview of all supported parameters for the {@link #resolvePID /pid} method:
+ * 
+ * <p>
+ * <table border="1px">
+ * <tr>
+ * <th>Parameter</th>
+ * <th>Cardinality</th>
+ * <th>Value type</th>
+ * <th>Description</th>
+ * </tr>
+ * <tr>
+ * <td>filter_by_property</td>
+ * <td>0..1</td>
+ * <td>Identifier</td>
+ * <td>Filter by given property.</td>
+ * </tr>
+ * <tr>
+ * <td>filter_by_type</td>
+ * <td>0..n</td>
+ * <td>Identifier</td>
+ * <td>Filter by given type(s). Also includes conformance information.</td>
+ * </tr>
+ * <tr>
+ * <td>include_property_names
+ * <td>0..1</td>
+ * <td>Boolean</td>
+ * <td>If true, the method also provies property names along identifiers and
+ * values. This is mostly useful for interfaces targeting human end-users. Note
+ * that this call comes at additional costs because the property definitions
+ * must be retrieved from the type registry.</td>
+ * </tr>
+ * </table>
+ * </p>
+ * 
+ * <h4>Querying property and type definitions</h4>
+ * 
+ * Since properties and types are registered in the type registry, their
+ * metadata can be retrieved. This is also called property and type
+ * <i>definitions</i>.<br/>
+ * To query a property definition, use the {@link #resolveProperty /property}
+ * method:
+ * 
+ * <pre>
+ * $ curl http://localhost/pitapi/property/11314.2/2f305c8320611911a9926bb58dfad8c9
+ * {
+ *     "identifier": "11314.2/2f305c8320611911a9926bb58dfad8c9",
+ *     "name": "License",
+ *     "range": "STRING",
+ *     "namespace": "RDA",
+ *     "description": "License information for a digital object."
+ * }
+ * </pre>
+ * 
+ * A similar call exists with the {@link #resolveType /type} method for type
+ * definitions.
+ * 
+ * <h4>Dealing with identifiers where the entity identified is not known</h4>
+ * 
+ * A particular problem arises if either a machine agent or human user does not
+ * know a priori whether an identifier points to a simple object or a property
+ * or type definition. This class offers two approaches for solving the problem.<br/>
+ * 
+ * One option is to determine the entity class first via the
+ * {@link #peekIdentifier(String) /peek} method and then use one of the more
+ * specific methods ({@link #resolvePID /pid}, {@link #resolveProperty
+ * /property}, {@link #resolveType /type}). The alternative is to use the
+ * {@link #resolveGenericPID(String) /generic} method.
+ * 
  * 
  * 
  */
@@ -107,7 +221,8 @@ public class TypingRESTResource {
 
 	/**
 	 * Generic resolution method to read PID records, property or type
-	 * definitions. Not part of the official interface description.
+	 * definitions. Optionally implemented method. May be slower than the
+	 * specialized methods due to an increased number of back-end requests.
 	 * 
 	 * @param identifier
 	 *            an identifier string
@@ -124,12 +239,18 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 		return Response.status(200).entity(obj).build();
 	}
-	
+
+	/**
+	 * Similar to {@link #resolveGenericPID(String)} but supports native slashes
+	 * in the identifier path.
+	 * 
+	 * @see #resolveGenericPID(String)
+	 */
 	@GET
 	@Path("/generic/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolveGenericPID(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
-		return resolveGenericPID(prefix+"/"+suffix);
+		return resolveGenericPID(prefix + "/" + suffix);
 	}
 
 	/**
@@ -150,22 +271,29 @@ public class TypingRESTResource {
 		else
 			return Response.status(404).build();
 	}
-	
+
+	/**
+	 * Similar to {@link #isPidRegistered(String)} but supports native slashes
+	 * in the identifier path.
+	 * 
+	 * @see #isPidRegistered(String)
+	 */
 	@HEAD
 	@Path("/pid/{prefix}/{suffix}")
 	public Response isPidRegistered(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
-		return isPidRegistered(prefix+"/"+suffix);
+		return isPidRegistered(prefix + "/" + suffix);
 	}
-	
 
 	/**
 	 * Queries what kind of entity an identifier will point to (generic object,
-	 * property, type, ...).
+	 * property, type, ...). See {@link EntityClass} for possible return values.
 	 * 
 	 * @param identifier
+	 *            full identifier name
 	 * @return a simple JSON object with the kind of entity the identifier
-	 *         points to.
+	 *         points to. See {@link EntityClass} for details.
 	 * @throws IOException
+	 * @see rdapit.pitservice.EntityClass
 	 */
 	@GET
 	@Path("/peek/{identifier}")
@@ -175,35 +303,43 @@ public class TypingRESTResource {
 		return Response.status(200).entity(result).build();
 	}
 
+	/**
+	 * Similar to {@link #peekIdentifier(String)} but supports native slashes in
+	 * the identifier path.
+	 * 
+	 * @see #peekIdentifier(String)
+	 */
 	@GET
 	@Path("/peek/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response peekIdentifier(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
-		EntityClass result = typingService.determineEntityClass(prefix+"/"+suffix);
+		EntityClass result = typingService.determineEntityClass(prefix + "/" + suffix);
 		return Response.status(200).entity(result).build();
 	}
-	
+
 	/**
 	 * Sophisticated GET method to return all or some properties of an
 	 * identifier.
 	 * 
 	 * @param identifier
+	 *            full identifier name
 	 * @param propertyIdentifier
 	 *            Optional. Cannot be used in combination with the type
 	 *            parameter. If given, the method returns only the value of the
 	 *            single property. The identifier must be registered for a
 	 *            property in the type registry. The method will return 404 if
 	 *            the PID exists but does not carry the given property.
-	 * @param typeIdentifier
+	 * @param typeIdentifiers
 	 *            Optional. Cannot be used in combination with the property
 	 *            parameter. If given, the method will return all properties
-	 *            (mandatory and optional) that are specified in the given type
-	 *            and listed in the identifier's record. The type parameter must
-	 *            be a type identifier available from the registry. If the
-	 *            identifier is not known in the registry, the method will
-	 *            return 404. The result will also include a boolean value
-	 *            <i>typeConformance</i> that is only true if all mandatory
-	 *            properties of the type are present in the PID record.
+	 *            (mandatory and optional) that are specified in the given
+	 *            type(s) and listed in the identifier's record. The type
+	 *            parameter must be a list of type identifiers available from
+	 *            the registry. If an identifier is not known in the registry,
+	 *            the method will return 404. The result will also include a
+	 *            boolean value <i>typeConformance</i> that is only true if all
+	 *            mandatory properties of the type are present in the PID
+	 *            record.
 	 * @param includePropertyNames
 	 *            Optional. If set to true, the method will also provide
 	 *            property names in addition to identifiers. Note that this is
@@ -254,14 +390,20 @@ public class TypingRESTResource {
 			return Response.status(200).entity(result).build();
 		}
 	}
-	
+
+	/**
+	 * Similar to {@link #resolvePID(String, String, List, boolean)} but
+	 * supports native slashes in the identifier path.
+	 * 
+	 * @see #resolvePID(String, String, List, boolean)
+	 */
 	@GET
 	@Path("/pid/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resolvePID(@PathParam("prefix") String identifierPrefix, @PathParam("suffix") String identifierSuffix,  @QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier,
-			@QueryParam("filter_by_type") List<String> typeIdentifiers,
+	public Response resolvePID(@PathParam("prefix") String identifierPrefix, @PathParam("suffix") String identifierSuffix,
+			@QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier, @QueryParam("filter_by_type") List<String> typeIdentifiers,
 			@QueryParam("include_property_names") @DefaultValue("false") boolean includePropertyNames) throws IOException, InconsistentRecordsException {
-		return resolvePID(identifierPrefix+"/"+identifierSuffix, propertyIdentifier, typeIdentifiers, includePropertyNames);
+		return resolvePID(identifierPrefix + "/" + identifierSuffix, propertyIdentifier, typeIdentifiers, includePropertyNames);
 	}
 
 	/**
@@ -281,14 +423,19 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 		return Response.status(200).entity(propDef).build();
 	}
-	
+
+	/**
+	 * Similar to {@link #resolveProperty(String)} but supports native slashes
+	 * in the identifier path.
+	 * 
+	 * @see #resolveProperty(String)
+	 */
 	@GET
 	@Path("/property/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolveProperty(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
-		return resolveProperty(prefix+"/"+suffix);
+		return resolveProperty(prefix + "/" + suffix);
 	}
-	
 
 	/**
 	 * GET method to read the definition of a type from the type registry.
@@ -308,11 +455,17 @@ public class TypingRESTResource {
 		return Response.status(200).entity(typeDef).build();
 	}
 
+	/**
+	 * Similar to {@link #resolveType(String)} but supports native slashes in
+	 * the identifier path.
+	 * 
+	 * @see #resolveType(String)
+	 */
 	@GET
 	@Path("/type/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolveType(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
-		return resolveType(prefix+"/"+suffix);
+		return resolveType(prefix + "/" + suffix);
 	}
 
 	/**
@@ -342,6 +495,7 @@ public class TypingRESTResource {
 	 * the official specification.
 	 * 
 	 * @param identifier
+	 *            full identifier name
 	 * @return 200 or 404
 	 */
 	@DELETE
@@ -359,11 +513,17 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 	}
 
+	/**
+	 * Similar to {@link #deletePID(String)} but supports native slashes in the
+	 * identifier path.
+	 * 
+	 * @see #deletePID(String)
+	 */
 	@DELETE
 	@Path("/pid/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deletePID(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) {
-		return deletePID(prefix+"/"+suffix);
+		return deletePID(prefix + "/" + suffix);
 	}
 
 }
