@@ -2,6 +2,7 @@ package rdapit.rest;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
@@ -23,7 +24,6 @@ import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
-import rdapit.typeregistry.TypeRegistry;
 
 /**
  * This is the main class for REST web service interaction. The class offers
@@ -204,13 +204,17 @@ public class TypingRESTResource {
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier,
-			@QueryParam("filter_by_type") @DefaultValue("") String typeIdentifier,
+			@QueryParam("filter_by_type") List<String> typeIdentifiers,
 			@QueryParam("include_property_names") @DefaultValue("false") boolean includePropertyNames) throws IOException, InconsistentRecordsException {
-		if (!typeIdentifier.isEmpty()) {
+		if (!typeIdentifiers.isEmpty()) {
 			// Filter by type ID
 			if (!propertyIdentifier.isEmpty())
 				return Response.status(400).entity("Filtering by both type and property is not supported!").build();
-			PIDInformation result = typingService.queryByTypeWithConformance(identifier, typeIdentifier, includePropertyNames);
+			PIDInformation result;
+			if (typeIdentifiers.size() == 1)
+				result = typingService.queryByTypeWithConformance(identifier, typeIdentifiers.get(0), includePropertyNames);
+			else
+				result = typingService.queryByTypeWithConformance(identifier, typeIdentifiers, includePropertyNames);
 			if (result == null)
 				return Response.status(404).entity("Type not registered in the registry").build();
 			return Response.status(200).entity(result).build();
@@ -308,4 +312,5 @@ public class TypingRESTResource {
 		} else
 			return Response.status(404).build();
 	}
+
 }

@@ -1,6 +1,8 @@
 package rdapit.pitservice;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import rdapit.typeregistry.TypeDefinition;
@@ -48,7 +50,7 @@ public class PIDInformation {
 		public String getValue() {
 			return value;
 		}
-		
+
 		public void setName(String name) {
 			this.name = name;
 		}
@@ -65,15 +67,14 @@ public class PIDInformation {
 		super();
 		this.propertyValues = new HashMap<>();
 	}
-	
+
 	@JsonCreator
-	public PIDInformation(@JsonProperty("values") HashMap<String, PIDInformationPropertyEntry> propertyValues, @JsonProperty("conformance") HashMap<String, Boolean> conformance) {
+	public PIDInformation(@JsonProperty("values") HashMap<String, PIDInformationPropertyEntry> propertyValues,
+			@JsonProperty("conformance") HashMap<String, Boolean> conformance) {
 		super();
 		this.propertyValues = propertyValues;
 		this.conformance = conformance;
 	}
-	
-	
 
 	/**
 	 * Checks whether the stored property values conform to the given type and
@@ -131,7 +132,7 @@ public class PIDInformation {
 	public void setPropertyName(String propertyIdentifier, String name) {
 		PIDInformationPropertyEntry pe = propertyValues.get(propertyIdentifier);
 		if (pe == null)
-			throw new IllegalArgumentException("Property identifier not listed in this record: "+propertyIdentifier);
+			throw new IllegalArgumentException("Property identifier not listed in this record: " + propertyIdentifier);
 		pe.setName(name);
 	}
 
@@ -139,4 +140,18 @@ public class PIDInformation {
 		return propertyValues.containsKey(propertyIdentifier);
 	}
 
+	/**
+	 * Removes all properties that are not listed in the given collection.
+	 * 
+	 * @param propertiesToKeep
+	 *            a collection of property identifiers to keep.
+	 */
+	public void removePropertiesNotListed(Collection<String> propertiesToKeep) {
+		Iterator<String> iter = propertyValues.keySet().iterator();
+		while (iter.hasNext()) {
+			String propID = iter.next();
+			if (!propertiesToKeep.contains(propID))
+				iter.remove();
+		}
+	}
 }

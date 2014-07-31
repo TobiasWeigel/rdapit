@@ -1,9 +1,9 @@
 package rdapit.pitservice;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.core.Response;
 
 import rdapit.pidsystem.IIdentifierSystem;
 import rdapit.typeregistry.ITypeRegistry;
@@ -158,10 +158,35 @@ public class TypingService implements ITypingService {
 		if (typeDef == null)
 			return null;
 		// now query PID record
-		PIDInformation pidInfo = identifierSystem.queryByType(pid, typeDef);
+		PIDInformation result = identifierSystem.queryByType(pid, typeDef);
+		if (includePropertyNames)
+			enrichPIDInformationRecord(result);
+		result.checkTypeConformance(typeDef);
+		return result;
+	}
+
+	@Override
+	public PIDInformation queryByTypeWithConformance(String pid, List<String> typeIdentifiers, boolean includePropertyNames) throws IOException,
+			InconsistentRecordsException {
+		if (typeIdentifiers.isEmpty())
+			return null;
+		/*
+		 * Query PID record - retrieve all properties, then filter. This is not
+		 * the most economical way of doing this, but proper filtering would
+		 * require a different additional method.
+		 */
+		PIDInformation pidInfo = identifierSystem.queryAllProperties(pid);
 		if (includePropertyNames)
 			enrichPIDInformationRecord(pidInfo);
-		pidInfo.checkTypeConformance(typeDef);
+		HashSet<String> propertiesInTypes = new HashSet<>();
+		for (String typeIdentifier : typeIdentifiers) {
+			TypeDefinition typeDef = typeRegistry.queryTypeDefinition(typeIdentifier);
+			if (typeDef == null)
+				return null;
+			propertiesInTypes.addAll(typeDef.getAllProperties());
+			pidInfo.checkTypeConformance(typeDef);
+		}
+		pidInfo.removePropertiesNotListed(propertiesInTypes);
 		return pidInfo;
 	}
 
@@ -170,14 +195,14 @@ public class TypingService implements ITypingService {
 		if (typeRegistry.isTypeRegistryPID(identifier)) {
 			// need to ask type registry about it
 			return typeRegistry.determineEntityClass(identifier);
-		}
-		else return EntityClass.OBJECT;
+		} else
+			return EntityClass.OBJECT;
 	}
-	
+
 	public ITypeRegistry getTypeRegistry() {
 		return typeRegistry;
 	}
-	
+
 	public IIdentifierSystem getIdentifierSystem() {
 		return identifierSystem;
 	}

@@ -1,6 +1,7 @@
 package rdapit.pitservice;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import rdapit.pidsystem.IIdentifierSystem;
@@ -99,6 +100,9 @@ public interface ITypingService extends IIdentifierSystem {
 	 * @throws InconsistentRecordsException
 	 */
 	public PIDInformation queryByTypeWithConformance(String pid, String typeIdentifier, boolean includePropertyNames) throws IOException,
+			InconsistentRecordsException;
+
+	public PIDInformation queryByTypeWithConformance(String pid, List<String> typeIdentifiers, boolean includePropertyNames) throws IOException,
 			InconsistentRecordsException;
 
 	/**
