@@ -92,7 +92,9 @@ import rdapit.typeregistry.TypeDefinition;
  * Querying a single property works by providing its identifier. If you do not
  * know the identifier but e.g. only the property name (which is not unique),
  * you will have to look at exemplary records or use the search facilities of
- * the type registry to determine the identifier. <br/>
+ * the type registry to determine the identifier. This may for instance be done
+ * as part of a service startup procedure which determines the necessary
+ * property and type identifiers and caches them for later use.<br/>
  * The following request queries a "license" property by its identifier:
  * 
  * <pre>
@@ -130,6 +132,7 @@ import rdapit.typeregistry.TypeDefinition;
  * 
  * <p>
  * <table border="1px">
+ * <tbody>
  * <tr>
  * <th>Parameter</th>
  * <th>Cardinality</th>
@@ -157,6 +160,7 @@ import rdapit.typeregistry.TypeDefinition;
  * that this call comes at additional costs because the property definitions
  * must be retrieved from the type registry.</td>
  * </tr>
+ * </tbody>
  * </table>
  * </p>
  * 
@@ -194,6 +198,89 @@ import rdapit.typeregistry.TypeDefinition;
  * /property}, {@link #resolveType /type}). The alternative is to use the
  * {@link #resolveGenericPID(String) /generic} method.
  * 
+ * <h3>Registering new properties and types in the type registry</h3>
+ * 
+ * Currently, there are no methods provided for registration of new properties
+ * and types since the type registry model is quite complex and requires some
+ * intelligence of the user that makes it highly doubtful whether this can be
+ * done by non-human agents.
+ * 
+ * When registering new types and properties, the following things must be taken
+ * care of:
+ * 
+ * <p>
+ * <ul>
+ * <li>
+ * The <i>human description</i> field in the type registry is used as the name
+ * of the property or type.</li>
+ * <li>
+ * The <i>explanation of use</i> field in the type registry is used as the
+ * description for the property or type.</li>
+ * <li>
+ * The <i>key value</i> entries hold the core information through which the
+ * prototype works. See below for schemas.</li>
+ * </ul>
+ * </p>
+ * 
+ * There are two schemas for <i>key value</i> entries, one for property
+ * definitions and one for type definitions. Though the keys are not case
+ * sensitive, upper case is recommended.<br/>
+ * 
+ * Property definition schema:
+ * <p>
+ * <table border="1px">
+ * <tbody>
+ * <tr>
+ * <th>Key</th>
+ * <th>Cardinality</th>
+ * <th>Value</th>
+ * </tr>
+ * <tr>
+ * <td>PIT_CONSTRUCT</td>
+ * <td>1</td>
+ * <td>PROPERTY_DEFINITION</td>
+ * </tr>
+ * <tr>
+ * <td>RANGE</td>
+ * <td>1</td>
+ * <td>The range (value type) of the property. Example: STRING</td>
+ * </tr>
+ * <tr>
+ * <td>NAMESPACE</td>
+ * <td>1</td>
+ * <td>The namespace of the property. This should be used to distinguish
+ * different usage scenarios from each other, e.g. different community
+ * understandings.</td>
+ * </tr>
+ * </tbody>
+ * </table>
+ * </p>
+ * 
+ * Type definition schema:
+ * <p>
+ * <table border="1px">
+ * <tbody>
+ * <tr>
+ * <th>Key</th>
+ * <th>Cardinality</th>
+ * <th>Value</th>
+ * </tr>
+ * <tr>
+ * <td>PIT_CONSTRUCT</td>
+ * <td>1</td>
+ * <td>TYPE_DEFINITION</td>
+ * </tr>
+ * <tr>
+ * <td>PROPERTY</td>
+ * <td>0..n</td>
+ * <td>The properties which make up the type. The value must be a JSON snippet
+ * with the registered PID of a property and a mandatory flag.<br/>
+ * Example: {"id": "11314.2/2f305c8320611911a9926bb58dfad8c9", "mandatory":true}
+ * </td>
+ * </tr>
+ * </tbody>
+ * </table>
+ * </p>
  * 
  * 
  */
