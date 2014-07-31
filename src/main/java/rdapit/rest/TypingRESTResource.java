@@ -124,6 +124,13 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 		return Response.status(200).entity(obj).build();
 	}
+	
+	@GET
+	@Path("/generic/{prefix}/{suffix}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response resolveGenericPID(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
+		return resolveGenericPID(prefix+"/"+suffix);
+	}
 
 	/**
 	 * Simple HEAD method to check whether a particular pid is registered.
@@ -143,6 +150,13 @@ public class TypingRESTResource {
 		else
 			return Response.status(404).build();
 	}
+	
+	@HEAD
+	@Path("/pid/{prefix}/{suffix}")
+	public Response isPidRegistered(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
+		return isPidRegistered(prefix+"/"+suffix);
+	}
+	
 
 	/**
 	 * Queries what kind of entity an identifier will point to (generic object,
@@ -161,6 +175,14 @@ public class TypingRESTResource {
 		return Response.status(200).entity(result).build();
 	}
 
+	@GET
+	@Path("/peek/{prefix}/{suffix}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response peekIdentifier(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
+		EntityClass result = typingService.determineEntityClass(prefix+"/"+suffix);
+		return Response.status(200).entity(result).build();
+	}
+	
 	/**
 	 * Sophisticated GET method to return all or some properties of an
 	 * identifier.
@@ -232,6 +254,15 @@ public class TypingRESTResource {
 			return Response.status(200).entity(result).build();
 		}
 	}
+	
+	@GET
+	@Path("/pid/{prefix}/{suffix}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response resolvePID(@PathParam("prefix") String identifierPrefix, @PathParam("suffix") String identifierSuffix,  @QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier,
+			@QueryParam("filter_by_type") List<String> typeIdentifiers,
+			@QueryParam("include_property_names") @DefaultValue("false") boolean includePropertyNames) throws IOException, InconsistentRecordsException {
+		return resolvePID(identifierPrefix+"/"+identifierSuffix, propertyIdentifier, typeIdentifiers, includePropertyNames);
+	}
 
 	/**
 	 * GET method to read the definition of a property from the type registry.
@@ -250,6 +281,14 @@ public class TypingRESTResource {
 			return Response.status(404).build();
 		return Response.status(200).entity(propDef).build();
 	}
+	
+	@GET
+	@Path("/property/{prefix}/{suffix}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response resolveProperty(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
+		return resolveProperty(prefix+"/"+suffix);
+	}
+	
 
 	/**
 	 * GET method to read the definition of a type from the type registry.
@@ -267,6 +306,13 @@ public class TypingRESTResource {
 		if (typeDef == null)
 			return Response.status(404).build();
 		return Response.status(200).entity(typeDef).build();
+	}
+
+	@GET
+	@Path("/type/{prefix}/{suffix}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response resolveType(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
+		return resolveType(prefix+"/"+suffix);
 	}
 
 	/**
@@ -311,6 +357,13 @@ public class TypingRESTResource {
 			return Response.status(200).entity(result).build();
 		} else
 			return Response.status(404).build();
+	}
+
+	@DELETE
+	@Path("/pid/{prefix}/{suffix}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deletePID(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) {
+		return deletePID(prefix+"/"+suffix);
 	}
 
 }

@@ -36,6 +36,7 @@ public class RESTServiceTest extends JerseyTest {
 		URI baseURI = UriBuilder.fromUri(this.getBaseUri()).build();
 		WebTarget rootTarget = client().target(baseURI).path("pitapi");
 		WebTarget pidResolveTarget = rootTarget.path("pid").path("{id}");
+		WebTarget pidResolveTarget2 = rootTarget.path("pid").path("{prefix}").path("{suffix}");
 		WebTarget propertyResolveTarget = rootTarget.path("property").path("{id}");
 		WebTarget peekTarget = rootTarget.path("peek").path("{id}");
 		/* Simple tests */
@@ -53,6 +54,11 @@ public class RESTServiceTest extends JerseyTest {
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
 		PIDInformation pidrec = resp.readEntity(PIDInformation.class);
+		assertEquals("http://www.example.com", pidrec.getPropertyValue("URL"));
+		// same call but on the other target that does not encode the slash between prefix and suffix
+		resp = pidResolveTarget2.resolveTemplate("prefix", "11043.4").resolveTemplate("suffix", "pitapi_test1").request().get();
+		assertEquals(200, resp.getStatus());
+		pidrec = resp.readEntity(PIDInformation.class);
 		assertEquals("http://www.example.com", pidrec.getPropertyValue("URL"));
 		/* Query single property */
 		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("filter_by_property", "11314.2/2f305c8320611911a9926bb58dfad8c9").request().get();
