@@ -128,14 +128,13 @@ public class TypingService implements ITypingService {
 		return null;
 	}
 
-	private void enrichPIDInformationRecord(PIDInformation pidInfo) throws InconsistentRecordsException, IOException {
+	private void enrichPIDInformationRecord(PIDInformation pidInfo) throws IOException {
 		// enrich record by querying type registry for all property definitions
 		// to get the property names
 		for (String propertyIdentifier : pidInfo.getPropertyIdentifiers()) {
 			PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyIdentifier);
-			if (propDef == null)
-				throw new InconsistentRecordsException("No registered property definition available for property with ID " + propertyIdentifier);
-			pidInfo.setPropertyName(propertyIdentifier, propDef.getName());
+			if (propDef != null)
+				pidInfo.setPropertyName(propertyIdentifier, propDef.getName());
 		}
 	}
 
