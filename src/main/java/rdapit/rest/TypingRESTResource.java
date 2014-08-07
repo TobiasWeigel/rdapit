@@ -80,6 +80,11 @@ import rdapit.typeregistry.TypeDefinition;
  * name, the parameter <i>include_property_name</i> must be set which makes
  * answering the request however more expensive.<br/>
  * 
+ * Special care must be taken in case a PID record should contian more than one
+ * value per key. The current implementation will only return the first of these
+ * entries; the long-term recommendation is to use JSON-encoded lists in case of
+ * multiple values per key.<br/>
+ * 
  * The {@link #resolvePID /pid} method also supports HEAD requests for quick
  * checks whether an identifier is registered.
  * 
