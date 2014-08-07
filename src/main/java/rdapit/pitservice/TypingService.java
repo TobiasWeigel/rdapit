@@ -135,6 +135,7 @@ public class TypingService implements ITypingService {
 			PropertyDefinition propDef = typeRegistry.queryPropertyDefinition(propertyIdentifier);
 			if (propDef != null)
 				pidInfo.setPropertyName(propertyIdentifier, propDef.getName());
+			else pidInfo.setPropertyName(propertyIdentifier, propertyIdentifier);
 		}
 	}
 
