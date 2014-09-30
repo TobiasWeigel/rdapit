@@ -106,7 +106,7 @@ public class RESTServiceTest extends JerseyTest {
 	protected Application configure() {
 		try {
 			identifierSystem = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
-			typeRegistry = new TypeRegistry("http://typeregistry.org/registrar", "11314.2");
+			typeRegistry = new TypeRegistry("http://38.100.130.13:8002/registrar", "11314.2");
 			new ApplicationContext(new TypingService(identifierSystem, typeRegistry));
 			return new PITApplication();
 		} catch (Exception exc) {
