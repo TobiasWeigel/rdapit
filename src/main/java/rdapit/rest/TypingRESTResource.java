@@ -18,6 +18,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.wordnik.swagger.annotations.*;
+
 import jersey.repackaged.com.google.common.collect.PeekingIterator;
 import rdapit.pitservice.EntityClass;
 import rdapit.pitservice.InconsistentRecordsException;
@@ -290,6 +292,8 @@ import rdapit.typeregistry.TypeDefinition;
  * 
  */
 @Path("pitapi")
+@Api(value = "/pitapi", description = "PID Information Types API" )
+@Produces({"application/json"})
 public class TypingRESTResource {
 
 	protected TypingService typingService;
@@ -307,6 +311,10 @@ public class TypingRESTResource {
 	 */
 	@GET
 	@Path("/ping")
+	@ApiOperation(value = "Ping service", notes = "Determine if service is running", response = String.class)
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Service available"),
+	})
 	public Response simplePing() {
 		return Response.status(200).entity("Hello World").build();
 	}
@@ -325,7 +333,14 @@ public class TypingRESTResource {
 	@GET
 	@Path("/generic/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response resolveGenericPID(@PathParam("identifier") String identifier) throws IOException {
+	@ApiOperation(value = "Lookup by identifier", notes = "More notes about this method", response = Object.class)
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found") 
+	})	
+	public Response resolveGenericPID(
+			@ApiParam(value = "ID of entity") @PathParam("identifier") String identifier) 
+			throws IOException {
 		Object obj = typingService.genericResolve(identifier);
 		if (obj == null)
 			return Response.status(404).build();
@@ -341,6 +356,11 @@ public class TypingRESTResource {
 	@GET
 	@Path("/generic/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Lookup by identifier", notes = "More notes about this method", response = Object.class)
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response resolveGenericPID(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
 		return resolveGenericPID(prefix + "/" + suffix);
 	}
@@ -356,6 +376,11 @@ public class TypingRESTResource {
 	 */
 	@HEAD
 	@Path("/pid/{identifier}")
+	@ApiOperation(value = "Identifier registered?", notes = "Check to see if identifier is registered")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response isPidRegistered(@PathParam("identifier") String identifier) throws IOException {
 		boolean b = typingService.isIdentifierRegistered(identifier);
 		if (b)
@@ -372,6 +397,11 @@ public class TypingRESTResource {
 	 */
 	@HEAD
 	@Path("/pid/{prefix}/{suffix}")
+	@ApiOperation(value = "Identifier registered?", notes = "Check to see if identifier is registered")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response isPidRegistered(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
 		return isPidRegistered(prefix + "/" + suffix);
 	}
@@ -390,6 +420,10 @@ public class TypingRESTResource {
 	@GET
 	@Path("/peek/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Class of identifier's entity?", notes = "Get the class of the identified entity")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found")
+	})
 	public Response peekIdentifier(@PathParam("identifier") String identifier) throws IOException {
 		EntityClass result = typingService.determineEntityClass(identifier);
 		return Response.status(200).entity(result).build();
@@ -404,6 +438,10 @@ public class TypingRESTResource {
 	@GET
 	@Path("/peek/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Class of identifier's entity?", notes = "Get the class of the identified entity")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found")
+	})
 	public Response peekIdentifier(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
 		EntityClass result = typingService.determineEntityClass(prefix + "/" + suffix);
 		return Response.status(200).entity(result).build();
@@ -453,6 +491,12 @@ public class TypingRESTResource {
 	@GET
 	@Path("/pid/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get associated attributes", notes = "Get attributes associated with given identifier")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 400, message = "Bad request"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response resolvePID(@PathParam("identifier") String identifier, @QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier,
 			@QueryParam("filter_by_type") List<String> typeIdentifiers,
 			@QueryParam("include_property_names") @DefaultValue("false") boolean includePropertyNames) throws IOException, InconsistentRecordsException {
@@ -492,6 +536,12 @@ public class TypingRESTResource {
 	@GET
 	@Path("/pid/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get associated attributes", notes = "Get attributes associated with given identifier")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 400, message = "Bad request"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response resolvePID(@PathParam("prefix") String identifierPrefix, @PathParam("suffix") String identifierSuffix,
 			@QueryParam("filter_by_property") @DefaultValue("") String propertyIdentifier, @QueryParam("filter_by_type") List<String> typeIdentifiers,
 			@QueryParam("include_property_names") @DefaultValue("false") boolean includePropertyNames) throws IOException, InconsistentRecordsException {
@@ -509,6 +559,11 @@ public class TypingRESTResource {
 	@GET
 	@Path("/property/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get property definition", notes = "Get definition of specified property")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response resolveProperty(@PathParam("identifier") String identifier) throws IOException {
 		PropertyDefinition propDef = typingService.describeProperty(identifier);
 		if (propDef == null)
@@ -525,6 +580,11 @@ public class TypingRESTResource {
 	@GET
 	@Path("/property/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get property definition", notes = "Get definition of specified property")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response resolveProperty(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
 		return resolveProperty(prefix + "/" + suffix);
 	}
@@ -540,6 +600,11 @@ public class TypingRESTResource {
 	@GET
 	@Path("/type/{identifier}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get type definition", notes = "Get definition of specified type")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response resolveType(@PathParam("identifier") String identifier) throws IOException {
 		TypeDefinition typeDef = typingService.describeType(identifier);
 		if (typeDef == null)
@@ -556,6 +621,11 @@ public class TypingRESTResource {
 	@GET
 	@Path("/type/{prefix}/{suffix}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get type definition", notes = "Get definition of specified type")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 404, message = "Not found")
+	})
 	public Response resolveType(@PathParam("prefix") String prefix, @PathParam("suffix") String suffix) throws IOException {
 		return resolveType(prefix + "/" + suffix);
 	}
@@ -573,6 +643,11 @@ public class TypingRESTResource {
 	@Path("/pid")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@ApiOperation(value = "Get type definition", notes = "Get definition of specified type")
+	@ApiResponses(value = {
+	  @ApiResponse(code = 200, message = "Found"),
+	  @ApiResponse(code = 500, message = "Server error")
+	})
 	public Response registerPID(Map<String, String> properties) {
 		try {
 			String pid = typingService.registerPID(properties);
