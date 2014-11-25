@@ -8,6 +8,16 @@
 	<b>All documentation of this project is released into the public domain as according to 
 	<a href="http://creativecommons.org/publicdomain/zero/1.0" target="_blank">CC0</a>.</b>
 	<br />
+	
+	<h2>Testing</h2>
+	Testing can be done using mvn test.<br />
+	However, testing requires an accessible Handle Server v8 instance and a Type Registry instance. 
+	The configuration for these (IP addresses, credentials) must be provided through a property file.
+	The name of this file must be passed as a Java property using a '-D' switch to mvn test; 
+	the name of the property is 'pitapi.testingconfig'. An example file can be found in the source code root 
+	(testing.properties.example). Note that the addresses given in there are outdated and will not work anymore.<br/>
+	Alternatively, all properties in the properties file can be passed using '-D' switches.
+	
 
 	<h2>Deployment</h2>
 
@@ -31,6 +41,7 @@ $ mvn war:war
 			found <a href="resources/pitapi.properties.example" target="_blank">here</a>.
 			Copy it to <code>/usr/local/rda/pitapi.properties</code> and make
 			sure the application server's user has sufficient permissions to read it.
+			The config file contains the same properties that are also used for testing.
 		</li>
 
 		<li>Deploy the generated war file on your application server.</li>
