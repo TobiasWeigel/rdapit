@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -17,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import rdapit.common.InvalidConfigException;
 import rdapit.pitservice.EntityClass;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,6 +44,21 @@ public class TypeRegistry implements ITypeRegistry {
 		searchTarget = rootTarget.path("search").path("DataType");
 		idTarget = rootTarget.path("records").path("{id}");
 		createTarget = rootTarget.path("model").path("DataType");
+	}
+	
+	/**
+	 * Factory method. Generates a new instance from a properties instance.
+	 * 
+	 * @param properties
+	 * @return a new TypeRegistry instance.
+	 * @throws InvalidConfigException 
+	 */
+	public static TypeRegistry configFromProperties(Properties properties) throws InvalidConfigException {
+		if (!properties.containsKey("typeregistry.baseURI")) throw new InvalidConfigException("Property typeregistry.baseURI missing - check configuration!");
+		String baseURI = properties.getProperty("typeregistry.baseURI").trim();
+		if (!properties.containsKey("typeregistry.identifierPrefix")) throw new InvalidConfigException("Property typeregistry.identifierPrefix missing - check configuration!");
+		String identifierPrefix = properties.getProperty("typeregistry.identifierPrefix").trim();
+		return new TypeRegistry(baseURI, identifierPrefix);
 	}
 
 	@Override

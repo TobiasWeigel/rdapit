@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
+import rdapit.common.InvalidConfigException;
 import rdapit.pidsystem.HandleSystemRESTAdapter;
 import rdapit.pidsystem.IIdentifierSystem;
 import rdapit.pitservice.TypingService;
@@ -18,7 +19,7 @@ public class PITApplication extends ResourceConfig {
 
 	public static final String PROPERTIES_FILE_PATH = "/usr/local/rda/pitapi.properties"; 
 	
-	public PITApplication() throws IOException {
+	public PITApplication() throws IOException, InvalidConfigException {
 		super();
 		packages("rdapit.rest");
 
@@ -29,11 +30,8 @@ public class PITApplication extends ResourceConfig {
 				throw new IOException("Property file pitapi.properties must be available at path " + PROPERTIES_FILE_PATH);
 			InputStream propIS = new FileInputStream(propFile);
 			properties.load(propIS);
-
-			IIdentifierSystem identifierSystem = new HandleSystemRESTAdapter(properties.getProperty("pidsystem.handle.baseURI").trim(),
-					properties.getProperty("pidsystem.handle.userName").trim(), properties.getProperty("pidsystem.handle.userPassword").trim(),
-					properties.getProperty("pidsystem.handle.generatorPrefix").trim());
-			ITypeRegistry typeRegistry = new TypeRegistry(properties.getProperty("typeregistry.baseURI").trim(), properties.getProperty("typeregistry.identifierPrefix").trim());
+			IIdentifierSystem identifierSystem = HandleSystemRESTAdapter.configFromProperties(properties);
+			ITypeRegistry typeRegistry = TypeRegistry.configFromProperties(properties);
 			TypingService typingService = new TypingService(identifierSystem, typeRegistry);
 			ApplicationContext appContext = new ApplicationContext(typingService);
 		}

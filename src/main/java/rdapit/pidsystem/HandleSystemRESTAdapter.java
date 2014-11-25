@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.internal.util.Base64;
 
+import rdapit.common.InvalidConfigException;
 import rdapit.pitservice.PIDInformation;
 import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeDefinition;
@@ -70,7 +72,7 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 	protected WebTarget handlesTarget;
 	protected WebTarget individualHandleTarget;
 
-	public HandleSystemRESTAdapter(String baseURI, String userName, String userPassword, String generatorPrefix) {
+	public HandleSystemRESTAdapter(String baseURI, String userName, String userPassword, String generatorPrefix, boolean unsafe_ssl) {
 		super();
 		this.generatorPrefix = generatorPrefix;
 		this.baseURI = UriBuilder.fromUri(baseURI).path("api").build();
@@ -104,6 +106,33 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		this.individualHandleTarget = handlesTarget.path("{handle}");
 	}
 
+	public HandleSystemRESTAdapter(String baseURI, String userName, String userPassword, String generatorPrefix) {
+		this(baseURI, userName, userPassword, generatorPrefix, false);
+	}
+	
+	/**
+	 * Factory method. Generates a new instance from a properties instance.
+	 * 
+	 * @param properties
+	 * @return a new HandleSystemRESTAdapter instance
+	 * @throws InvalidConfigException 
+	 */
+	public static HandleSystemRESTAdapter configFromProperties(Properties properties) throws InvalidConfigException {
+		if (!properties.containsKey("pidsystem.handle.baseURI")) throw new InvalidConfigException("Property pidsystem.handle.baseURI missing - check configuration!");
+		String baseURI = properties.getProperty("pidsystem.handle.baseURI").trim();
+		if (!properties.containsKey("pidsystem.handle.userName")) throw new InvalidConfigException("Property pidsystem.handle.userName missing - check configuration!");
+		String userName = properties.getProperty("pidsystem.handle.userName").trim();
+		if (!properties.containsKey("pidsystem.handle.userPassword")) throw new InvalidConfigException("Property pidsystem.handle.userPassword missing - check configuration!");
+		String userPassword = properties.getProperty("pidsystem.handle.userPassword").trim();
+		if (!properties.containsKey("pidsystem.handle.generatorPrefix")) throw new InvalidConfigException("Property pidsystem.handle.generatorPrefix missing - check configuration!");
+		String generatorPrefix = properties.getProperty("pidsystem.handle.generatorPrefix").trim();
+		boolean unsafeSSL = false;
+		if (properties.containsKey("pidsystem.handle.unsafeSSL"))
+			unsafeSSL = Boolean.parseBoolean(properties.getProperty("pidsystem.handle.unsafeSSL").trim());
+		return new HandleSystemRESTAdapter(baseURI, userName, userPassword, generatorPrefix, unsafeSSL);
+	}
+	
+	
 	@Override
 	public boolean isIdentifierRegistered(String pid) {
 		Response response = individualHandleTarget.resolveTemplate("handle", pid).request(MediaType.APPLICATION_JSON).head();
@@ -200,4 +229,9 @@ public class HandleSystemRESTAdapter implements IIdentifierSystem {
 		}
 		return result;
 	}
+	
+	public String getGeneratorPrefix() {
+		return generatorPrefix;
+	}
+	
 }

@@ -2,10 +2,11 @@ package rdapit.test;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.URI;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Properties;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -14,24 +15,28 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import rdapit.common.InvalidConfigException;
 import rdapit.pidsystem.HandleSystemRESTAdapter;
 import rdapit.pitservice.EntityClass;
 import rdapit.pitservice.PIDInformation;
 import rdapit.pitservice.TypingService;
 import rdapit.rest.ApplicationContext;
 import rdapit.rest.PITApplication;
-import rdapit.typeregistry.PropertyDefinition;
 import rdapit.typeregistry.TypeRegistry;
 
 public class RESTServiceTest extends JerseyTest {
 	
 	private TypeRegistry typeRegistry;
 	private HandleSystemRESTAdapter identifierSystem;
+	
+	private static Properties configProperties = new Properties();
 
 	@Test
 	public void testResolve() {
+		String prefix = this.identifierSystem.getGeneratorPrefix();
 		/* Prepare targets */
 		URI baseURI = UriBuilder.fromUri(this.getBaseUri()).build();
 		WebTarget rootTarget = client().target(baseURI).path("pitapi");
@@ -46,32 +51,32 @@ public class RESTServiceTest extends JerseyTest {
 		// slashes.
 		// There's a solution however: in setenv include
 		// CATALINA_OPTS="-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true"
-		assertEquals(200, pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().head().getStatus());
-		assertEquals(200, pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get().getStatus());
-		assertEquals(404, pidResolveTarget.resolveTemplate("id", "11043.4/invalid_or_unknown_identifier").request().head().getStatus());
-		assertEquals(404, pidResolveTarget.resolveTemplate("id", "11043.4/invalid_or_unknown_identifier").request().get().getStatus());
+		assertEquals(200, pidResolveTarget.resolveTemplate("id", prefix+"/pitapi_test1").request().head().getStatus());
+		assertEquals(200, pidResolveTarget.resolveTemplate("id", prefix+"/pitapi_test1").request().get().getStatus());
+		assertEquals(404, pidResolveTarget.resolveTemplate("id", prefix+"/invalid_or_unknown_identifier").request().head().getStatus());
+		assertEquals(404, pidResolveTarget.resolveTemplate("id", prefix+"/invalid_or_unknown_identifier").request().get().getStatus());
 		/* Query full record */
-		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
+		resp = pidResolveTarget.resolveTemplate("id", prefix+"/pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
 		PIDInformation pidrec = resp.readEntity(PIDInformation.class);
 		assertEquals("http://www.example.com", pidrec.getPropertyValue("URL"));
 		// same call but on the other target that does not encode the slash between prefix and suffix
-		resp = pidResolveTarget2.resolveTemplate("prefix", "11043.4").resolveTemplate("suffix", "pitapi_test1").request().get();
+		resp = pidResolveTarget2.resolveTemplate("prefix", prefix).resolveTemplate("suffix", "pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
 		pidrec = resp.readEntity(PIDInformation.class);
 		assertEquals("http://www.example.com", pidrec.getPropertyValue("URL"));
 		/* Query single property */
-		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("filter_by_property", "11314.2/2f305c8320611911a9926bb58dfad8c9").request().get();
+		resp = pidResolveTarget.resolveTemplate("id", prefix+"/pitapi_test1").queryParam("filter_by_property", "11314.2/2f305c8320611911a9926bb58dfad8c9").request().get();
 		assertEquals(200, resp.getStatus());
 		/* Query property by type */
-		resp = pidResolveTarget.resolveTemplate("id", "11043.4/pitapi_test1").queryParam("type", "11043.4/test_type").request().get();
+		resp = pidResolveTarget.resolveTemplate("id", prefix+"/pitapi_test1").queryParam("type", prefix+"/test_type").request().get();
 		/* Query prop definition */
 		assertEquals(200, propertyResolveTarget.resolveTemplate("id", "11314.2/56bb4d16b75ae50015b3ed634bbb519f").request().get().getStatus());
 		/* Peek tests */
 		resp = peekTarget.resolveTemplate("id", "11314.2/2f305c8320611911a9926bb58dfad8c9").request().get();
 		assertEquals(200, resp.getStatus());
 		assertEquals(EntityClass.PROPERTY, resp.readEntity(EntityClass.class));
-		resp = peekTarget.resolveTemplate("id", "11043.4/pitapi_test1").request().get();
+		resp = peekTarget.resolveTemplate("id", prefix+"/pitapi_test1").request().get();
 		assertEquals(200, resp.getStatus());
 		assertEquals(EntityClass.OBJECT, resp.readEntity(EntityClass.class));
 	}
@@ -102,13 +107,28 @@ public class RESTServiceTest extends JerseyTest {
 		}
 	}
 	
+	@BeforeClass
+	public static void readTestingConfig() throws Exception {
+		RESTServiceTest.configProperties = System.getProperties();
+		if (RESTServiceTest.configProperties.containsKey("pitapi.testingconfig")) {
+			String fn = RESTServiceTest.configProperties.getProperty("pitapi.testingconfig");
+			File propfile = new File(fn);
+			if (!propfile.exists()) {
+				throw new Exception("Testing config file given in 'pitapi.testingconfig' not found! (file name: "+propfile.getCanonicalPath()+")");
+			}
+			RESTServiceTest.configProperties.load(new FileInputStream(propfile));
+		}
+	}
+	
 	@Override
 	protected Application configure() {
 		try {
-			identifierSystem = new HandleSystemRESTAdapter("https://75.150.60.33:8006", "300:11043.4/admin", "password", "11043.4");
-			typeRegistry = new TypeRegistry("http://38.100.130.13:8002/registrar", "11314.2");
+			identifierSystem = HandleSystemRESTAdapter.configFromProperties(RESTServiceTest.configProperties);
+			typeRegistry = TypeRegistry.configFromProperties(RESTServiceTest.configProperties); //("http://38.100.130.13:8002/registrar", "11314.2");
 			new ApplicationContext(new TypingService(identifierSystem, typeRegistry));
 			return new PITApplication();
+		} catch (InvalidConfigException exc) {
+			throw new IllegalStateException("Could not initialize application due to testing configuration errors: "+exc.getMessage());
 		} catch (Exception exc) {
 			throw new IllegalStateException("Could not initialize application: ", exc);
 		}
