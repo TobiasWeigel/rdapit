@@ -18,8 +18,14 @@
 	(testing.properties.example). Note that the addresses given in there are outdated and will not work anymore.<br/>
 	Alternatively, all properties in the properties file can be passed using '-D' switches.
 	
-
 	<h2>Deployment</h2>
+	
+	<p>Deploying the API prototype requires access to a Handle System 8 server and a Type Registry instance.</p>
+	
+	<p>The current API prototype uses the interface to an older version of the type registry under development by CNRI at <a href="http://typeregistry.org">typeregistry.org</a>.
+	The older version may still be available at <a href="http://38.100.130.13:8002/registrar">http://38.100.130.13:8002/registrar</a>; an adaption to the newer interface may be available from the PIT git repository.<br/>
+	At time of writing, the Handle System 8 has not been publicly released. Some closed beta servers may be available for instance from members of the <a href="http://www.pidconsortium.eu">European Persistent Identifier Consortium</a>.</p>
+	
 
 	The API prototype was written using
 	<a href="http://jersey.java.net" target="_blank">Jersey 2</a> based on
@@ -41,6 +47,7 @@ $ mvn war:war
 			found <a href="resources/pitapi.properties.example" target="_blank">here</a>.
 			Copy it to <code>/usr/local/rda/pitapi.properties</code> and make
 			sure the application server's user has sufficient permissions to read it.
+			Also update it with the addresses of the Handle System 8 instance and possibly the Type Registry.
 			The config file contains the same properties that are also used for testing.
 		</li>
 
